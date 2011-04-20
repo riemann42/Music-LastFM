@@ -1,0 +1,177 @@
+package Music::LastFM::Types::Objects::Country;
+
+# This is taken in whole from MORIYA Masaki (守屋 雅樹)'s example for
+# MooseX::Types::Locale::Country.  Please see this module for more information!
+
+use Moose;
+use MooseX::Aliases;
+use MooseX::Types::Locale::Country qw(
+    Alpha2Country
+    Alpha3Country
+    NumericCountry
+    CountryName
+);
+
+use Data::Util qw(:check);
+use Locale::Country;
+
+use namespace::clean -except => 'meta';
+
+use overload '""' => 'stringify';
+
+has 'alpha2' => (
+    traits => [
+        qw(
+            Aliased
+            )
+    ],
+    is         => 'rw',
+    isa        => Alpha2Country,
+    init_arg   => '_alpha2',
+    alias      => 'code',
+    coerce     => 1,
+    lazy_build => 1,
+    writer     => '_set_alpha2',
+    trigger    => sub {
+        $_[0]->clear_alpha3;
+        $_[0]->clear_numeric;
+        $_[0]->clear_name;
+    },
+);
+
+has 'alpha3' => (
+    is         => 'rw',
+    isa        => Alpha3Country,
+    init_arg   => '_alpha3',
+    coerce     => 1,
+    lazy_build => 1,
+    writer     => '_set_alpha3',
+    trigger    => sub {
+        $_[0]->clear_alpha2;
+        $_[0]->clear_numeric;
+        $_[0]->clear_name;
+    },
+);
+
+has 'numeric' => (
+    is         => 'rw',
+    isa        => NumericCountry,
+    init_arg   => '_numeric',
+    coerce     => 0,                # you cannot coerce numeric
+    lazy_build => 1,
+    writer     => '_set_numeric',
+    trigger    => sub {
+        $_[0]->clear_alpha2;
+        $_[0]->clear_alpha3;
+        $_[0]->clear_name;
+    },
+);
+
+has 'name' => (
+    is         => 'rw',
+    isa        => CountryName,
+    init_arg   => '_name',
+    coerce     => 1,
+    lazy_build => 1,
+    writer     => '_set_name',
+    trigger    => sub {
+        $_[0]->clear_alpha2;
+        $_[0]->clear_alpha3;
+        $_[0]->clear_numeric;
+    },
+);
+
+around BUILDARGS => sub {
+    my $orig  = shift;
+    my $class = shift;
+    if ( @_ == 1 && !ref $_[0] ) {
+
+        if ( is_integer( $_[0] ) ) {
+            return $class->$orig( _numeric => $_[0] );
+        }
+        else {
+            my $length = length $_[0];
+            return $class->$orig(
+                (     $length == 2 ? '_alpha2'
+                    : $length == 3 ? '_alpha3'
+                    : '_name'
+                ) => $_[0]
+            );
+        }
+    }
+    else {
+        return $class->$orig(@_);
+    }
+};
+
+sub _build_alpha2 {
+    $_[0]->has_alpha3
+        ? country_code2code( $_[0]->alpha3, LOCALE_CODE_ALPHA_3,
+        LOCALE_CODE_ALPHA_2 )
+        : $_[0]->has_numeric
+        ? country_code2code( $_[0]->numeric, LOCALE_CODE_NUMERIC,
+        LOCALE_CODE_ALPHA_2 )
+        : country2code( $_[0]->name, LOCALE_CODE_ALPHA_2 );
+}
+
+sub _build_alpha3 {
+    $_[0]->has_alpha2
+        ? country_code2code( $_[0]->alpha2, LOCALE_CODE_ALPHA_2,
+        LOCALE_CODE_ALPHA_3 )
+        : $_[0]->has_numeric
+        ? country_code2code( $_[0]->numeric, LOCALE_CODE_NUMERIC,
+        LOCALE_CODE_ALPHA_3 )
+        : country2code( $_[0]->name, LOCALE_CODE_ALPHA_3 );
+}
+
+sub _build_numeric {
+    $_[0]->has_alpha2
+        ? country_code2code( $_[0]->alpha2, LOCALE_CODE_ALPHA_2,
+        LOCALE_CODE_NUMERIC )
+        : $_[0]->has_alpha3
+        ? country_code2code( $_[0]->alpha3, LOCALE_CODE_ALPHA_3,
+        LOCALE_CODE_NUMERIC )
+        : country2code( $_[0]->name, LOCALE_CODE_NUMERIC );
+}
+
+sub _build_name {
+    $_[0]->has_alpha2 ? code2country( $_[0]->alpha2, LOCALE_CODE_ALPHA_2 )
+        : $_[0]->has_alpha3
+        ? code2country( $_[0]->alpha3,  LOCALE_CODE_ALPHA_3 )
+        : code2country( $_[0]->numeric, LOCALE_CODE_NUMERIC );
+}
+
+sub set {
+    my ( $self, $argument ) = @_;
+
+    confess('Cannot set country because: argument is not defined')
+        unless defined $argument;
+    confess('Cannot set country because: argument is not string')
+        unless is_string($argument);
+
+    if ( is_integer($argument) ) {
+        $self->_set_numeric($argument);
+    }
+    else {
+        my $length = length $argument;
+              $length == 2 ? $self->_set_alpha2($argument)
+            : $length == 3 ? $self->_set_alpha3($argument)
+            :                $self->_set_name($argument);
+    }
+
+    return $self;
+}
+
+alias has_code    => 'has_alpha2';
+alias clear_code  => 'clear_alpha2';
+alias _build_code => '_build_alpha2';
+alias _set_code   => '_set_alpha2';
+
+sub stringify {
+    my $self = shift;
+    return $self->name;
+}
+
+__PACKAGE__->meta->make_immutable;
+
+1;
