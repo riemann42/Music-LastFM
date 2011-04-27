@@ -1,0 +1,15 @@
+[Documentation::RequirePodSections]
+    language = en_US
+    lib_sections    = NAME | DESCRIPTION | SYNOPSIS | METHODS | AUTHOR | LICENSE
+    script_sections = NAME | USAGE | OPTIONS | EXIT STATUS | AUTHOR | LICENSE
+#[ControlStructures::ProhibitCascadingIfElse]
+#    max_elsif = 5
+
+[-Miscellanea::RequireRcsKeywords]
+#[-RegularExpressions::RequireDotMatchAnything]
+#[-RegularExpressions::RequireExtendedFormatting]
+#[-RegularExpressions::RequireLineBoundaryMatching]
+#[-ValuesAndExpressions::ProhibitNoisyQuotes] 
+#[-Variables::ProhibitPunctuationVars]
+#[-ValuesAndExpressions::ProhibitEmptyQuotes]
+

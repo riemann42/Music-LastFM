@@ -64,7 +64,7 @@ has cache => (
     clearer =>'no_cache',
     documentation => 'This object is used to cache JSON responses from the LastFM Web Service. Defaults to Cache::Filecache, using the cache_time attribute to determine amount of time to cache objects.  This can be cleared with no_cache, or disabled by setting cache_time to 0.'
 );
-has sessioncache => ( 
+has session_cache => ( 
     is =>'rw', 
     isa => Cache,
     handles => {
@@ -90,8 +90,8 @@ sub auth {
     my $self     = shift;
     my $params   = shift;
     my $username = shift;
-    if ( ! $self->has_sessioncache) {
-        Carp::Confess("Can't authorize a request without a sessioncache object");
+    if ( ! $self->has_session_cache) {
+        Carp::Confess("Can't authorize a request without a session_cache object");
     }
     if ( $self->get_sk($username)) {
         $params->{sk} = $self->get_sk($username);
@@ -150,7 +150,7 @@ sub getsession {
     );
     if ($resp->success) {
         my ($k,$v) = ($resp->data->{name}, $resp->data->{key});
-        if ( ! $self->has_sessioncache) {
+        if ( ! $self->has_session_cache) {
             Carp::Cluck("Can't save this token, because no session cache defined. ");
             $self->set_sk($k,$v)
         }

@@ -63,7 +63,7 @@ subtype Wiki,
 class_type Meta, { class => 'Moose::Meta::Class' };
 coerce Meta, from Str, via { Class::MOP::Class->initialize($_) };
 subtype Metas, as HashRef [Meta];
-coerce Metas, from HashRef, via {
+noerce Metas, from HashRef, via {
     my $h = $_;
     return {
         map { $_ => Class::MOP::Class->initialize( $h->{$_} ) }
