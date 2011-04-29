@@ -14,11 +14,5 @@ Moose::Exporter->setup_import_methods(
         class => ['Music::LastFM::Meta::LastFM::Role::Class'],
         
     },
-    role_metaroles => {
-        applied_attribute => [
-            'Music::LastFM::Meta::LastFM::Role::Attribute',
-            'Music::LastFM::Meta::EasyAcc::Role::Attribute',
-        ],
-    },
     base_class_roles => ['Music::LastFM::Meta::LastFM::Role::Object']
 );

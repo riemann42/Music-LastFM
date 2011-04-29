@@ -24,7 +24,7 @@ coerce Options, from HashRef, via {
 };
 
 ### Type Coercions for each of the Object types
-foreach my $attr (qw(Artist Album User Tag Event Venue Track)) {
+for my $attr (qw(Artist Album User Tag Event Venue Track)) {
     my $type = __PACKAGE__.'::'. $attr;
     my $class = 'Music::LastFM::Object::'.$attr;
     my $atype = __PACKAGE__.'::'.$attr.'s';
@@ -63,7 +63,7 @@ subtype Wiki,
 class_type Meta, { class => 'Moose::Meta::Class' };
 coerce Meta, from Str, via { Class::MOP::Class->initialize($_) };
 subtype Metas, as HashRef [Meta];
-noerce Metas, from HashRef, via {
+coerce Metas, from HashRef, via {
     my $h = $_;
     return {
         map { $_ => Class::MOP::Class->initialize( $h->{$_} ) }
@@ -79,7 +79,6 @@ coerce Gender, from Str, via { lc( substr( $_, 0, 1 ) ) };
 ### Goose
 duck_type Logger, [ qw(debug info warning critical) ];
 duck_type Cache, [qw(get set)]; 
-
 
 
 

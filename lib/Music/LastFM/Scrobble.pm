@@ -3,16 +3,23 @@ use warnings; use strict; use Carp;
 use version; our $VERSION = qv('0.0.3');
 use Moose;
 use MooseX::Singleton;
-use Music::LastFM::Types qw(ArrayRef Track DateTime);
+use Music::LastFM::Types qw(ArrayRef Track Tracks DateTime);
 use MooseX::Params::Validate;
 use Data::Dumper;
 
 with 'Music::LastFM::Role::Logger';
 
 has queue => (
+    traits  => ['Array'],
     is => 'ro',
-    isa => ArrayRef,
-    default => sub{[]};
+    isa => Tracks,
+    default => sub{[]},
+    handles => {
+        queue_track     => 'push',
+        next_track      => 'shift',
+        requeue_track   => 'unshift',
+        track_count     => 'count',
+    }
 );
 
 has 'agent' => (
@@ -84,8 +91,6 @@ sub now_playing {
 }
 
 
-# NOT DONE.  Quit in middle
-
 sub do_scrobble {
     my $self = shift;
     my ( %options ) = validated_hash(
@@ -101,30 +106,13 @@ sub do_scrobble {
     );
     my %req;
     foreach (@{$options{track}}) {
-        $self->_set_fields(track => $_, 
-        my %req = (
-            track => $options{track}->{title},
-            artist => $options{track}->{artist}
-        );
-        foreach my $m (qw(album mbid duration)) {
-            my $p = 'has_'.$m;
-            if ($options{track}->$p) {
-                $req{$m} = $options{track}->$m;
-            }
-        }
-        # TODO :  Add other fields.
-        
-        
+        $self->_set_fields(track => $_, timestamp => $_->last_played);
     }
-
-
-    my ( $response,@more ) = $self->_mas->query(method => 'track.updateNowPlaying', options => \%req );
+    my ( $response,@more ) = $self->_mas->query(method => 'track.scrobble', options => \%req );
     $self->debug(Dumper($response->data));
     return $response->success;
-
 }
 
 
 __PACKAGE__->meta->make_immutable;
 1;
-

@@ -1,36 +1,27 @@
 package Music::LastFM::Meta::EasyAcc::Role::Attribute;
 use Moose::Role;
 before _process_options => sub {
-    my $class   = shift;
-    my $name    = shift;
-    my $options = shift;
+    my ($class, $name,$options) = @_;
 
-    # This is based on MooseX::FollowPBP::Role::Attribute
-   if ( ( exists $options->{is} ) && ( $options->{is} ne 'bare' ) ) {
-        if ( !exists $options->{predicate} ) {
-            my $has;
-            if ( $name =~ s/^_// ) {
-                $has = '_has_';
-            }
-            else {
-                $has = 'has_';
-            }
+    # This is based on MooseX::FollowPBP::Role::Attribute .. loosely.
+    if ( ( exists $options->{is} ) && ( $options->{is} ne 'bare' ) ) {
+        # Everything gets a predicate
+        if ( ! exists $options->{predicate} ) {
+            my $has = ( $name =~ s/^_// ) ?  '_has_'
+                                          :  'has_';
             $options->{predicate} = $has . $name;
         }
-        if ( !( exists $options->{reader} ) ) {
+        # Everything gets a reader (SemiAffordable style... 
+        #   objects have things, you don't get things!)
+        if ( ! exists $options->{reader}  ) {
             $options->{reader} = $name;
         }
-        if ( !exists $options->{writer} ) {
-            my $set;
-            if ( $name =~ s/^_// ) {
-                $set = '_set_';
-            }
-            else {
-                $set = 'set_';
-            }
-            if ( $options->{is} eq 'rw' ) {
-                $options->{writer} = $set . $name;
-            }
+        # And finally, everything, even ro, get a writer.
+        # TODO : create a writer that checks who you are, making it truly private.
+        if ( ! exists $options->{writer} ) {
+            my $set = (( $name =~ s/^_// ) || ($options->{is} eq 'ro')) ?  '_set_'
+                                                                        :  'set_';
+            $options->{writer} = $set . $name;
         }
         delete $options->{is};
     }

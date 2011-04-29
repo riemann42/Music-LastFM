@@ -6,7 +6,8 @@ use Carp;
 
 use version; our $VERSION = qv('0.0.3');
 
-use Moose;
+# Use inside out for this, as messing with this is a Bad IdeaTM.
+use MooseX::InsideOut;
 use Music::LastFM::Types qw(Logger Int Str Cache);
 use Music::LastFM::Meta::EasyAcc;
 
@@ -15,18 +16,20 @@ use Music::LastFM::SessionCache;
 use Cache::FileCache;
 use Log::Dispatch;
 
+# Should this all just be a subclass of the agent?
+
 has username => (
     reader        => '_username',
     isa           => Str,
     required      => 1,
-    documentation => 'This is the username for authenticated requests.'
+    documentation => 'This is the username for authenticated requests.',
 );
 
 has api_key => (
     reader        => '_api_key',
     isa           => Str,
     required      => 1,
-    documentation => 'The API Key provided to you by LastFM'
+    documentation => 'The API Key provided to you by LastFM',
 );
 
 has api_secret => (
@@ -34,40 +37,40 @@ has api_secret => (
     isa      => Str,
     required => 1,
     documentation =>
-        'The API Secret provided to you by LastFM.  Used to sign requests, so keep it secret.'
+        'The API Secret provided to you by LastFM.  Used to sign requests, so keep it secret.',
 );
 
 has session_cache_filename => (
     is      => 'ro',
     isa     => Str,
-    default => $ENV{HOME} . "/.music-lastfm-sessions",
+    default => $ENV{HOME} . '/.music-lastfm-sessions',
     documentation =>
-        'A filename to store session keys in.  Session Keys have an unlimited lifetime, so storing them is a good idea.'
+        'A filename to store session keys in.  Session Keys have an unlimited lifetime, so storing them is a good idea.',
 );
 
 has scrobble_queue_filename => (
     is            => 'ro',
     isa           => Str,
-    default       => $ENV{HOME} . "/.music-lastfm-queue",
-    documentation => 'A filename to store scrobbles in before submitting'
+    default       => $ENV{HOME} . '/.music-lastfm-queue',
+    documentation => 'A filename to store scrobbles in before submitting',
 );
 has log_filename => (
     is  => 'ro',
     isa => Str,
     documentation =>
-        'Log file location to log requests and responses for debugging'
+        'Log file location to log requests and responses for debugging',
 );
 has cache_time => (
     isa           => Int,
     reader        => '_cache_time',
-    default       => 18000,
-    documentation => 'Amount of time to cache LastFM responses'
+    default       => 18_000,
+    documentation => 'Amount of time to cache LastFM responses',
 );
 has url => (
     reader        => '_url',
     isa           => Str,
     default       => 'http://ws.audioscrobbler.com/2.0/',
-    documentation => 'The URL for the LastFM webservice'
+    documentation => 'The URL for the LastFM webservice',
 );
 
 has 'cache' => (
@@ -75,9 +78,8 @@ has 'cache' => (
     lazy    => 1,
     isa     => Cache,
     builder => '_cache_default',
-    clearer => '_no_cache',
     documentation =>
-        'This object is used to cache JSON responses from the LastFM Web Service. Defaults to Cache::Filecache, using the cache_time attribute to determine amount of time to cache objects.  This can be cleared with no_cache.'
+        'This object is used to cache JSON responses from the LastFM Web Service. Defaults to Cache::Filecache, using the cache_time attribute to determine amount of time to cache objects.  This can be cleared with no_cache.',
 );
 
 sub _cache_default {
@@ -105,12 +107,13 @@ sub _session_cache_default {
 }
 
 has logger => (
-    reader  => "_logger",
+    reader  => '_logger',
     isa     => Logger,
     builder => '_logger_default',
+    predicate => '_has_logger',
     lazy    => 1,
     documentation =>
-        'This is the object used for logging.  The default is a Log::Dispatch object.  If the log_filename attribute is set, items are logged to this file.  Any object with debug, info, error, and critical methods can be used here.'
+        'This is the object used for logging.  The default is a Log::Dispatch object.  If the log_filename attribute is set, items are logged to this file.  Any object with debug, info, error, and critical methods can be used here.',
 );
 
 sub _logger_default {
@@ -129,19 +132,24 @@ sub _logger_default {
         outputs   => \@outputs,
         callbacks => sub {
             my %p = @_;
-            my @t = localtime();
+            my @t = localtime;
+            ## no critic (ProhibitMagicNumbers)
             return sprintf(
                 '[%04d-%02d-%02d %02d:%02d:%02d] %-9s %s',
                 $t[5] + 1900,
                 $t[4] + 1,
                 $t[3], $t[2], $t[1], $t[0], $p{level}, $p{message}
             ) . "\n";
+            ## use critic
         }
     );
 }
 
 sub BUILD {
     my $self = shift;
+    if ($self->_has_logger) {
+        Music::LastFM::Logger->initialize(logger => $self->_logger);
+    }
     Music::LastFM::Agent->initialize(
         url           => $self->_url,
         api_key       => $self->_api_key,
@@ -151,10 +159,13 @@ sub BUILD {
         session_cache => $self->_session_cache,
         logger        => $self->_logger,
     );
+    return;
 }
 
 sub agent { return Music::LastFM::Agent->instance; }
-sub query { shift->agent->query(@_); }
+## no critic (Subroutines::RequireArgUnpacking)
+sub query { return shift->agent->query(@_); }
+## use critic
 do {
     my $package_meta = __PACKAGE__->meta();
     my $agent_meta   = Class::MOP::Class->initialize('Music::LastFM::Agent');
@@ -347,7 +358,7 @@ L<http://rt.cpan.org>.
 
 Edward Allen  C<< <ealleniii_at_cpan_dot_org> >>
 
-=head1 LICENCE AND COPYRIGHT
+=head1 LICENSE
 
 Copyright (c) 2011, Edward Allen C<< <ealleniii_at_cpan_dot_org> >>. All rights reserved.
 
@@ -368,7 +379,7 @@ NECESSARY SERVICING, REPAIR, OR CORRECTION.
 
 IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
 WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
-REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
 LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
 OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
 THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING

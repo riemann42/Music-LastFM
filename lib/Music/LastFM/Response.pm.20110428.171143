@@ -22,7 +22,7 @@ with 'Music::LastFM::Role::Logger';
     Readonly my $ATTR_KEY => q{@attr};
     ## use critic
 
-    has method        => ( is => 'ro', isa => Method, required => 1, );
+    has method        => ( is => 'ro', isa => Method, required => 1 );
     has json          => ( is => 'ro', isa => Str,);
     has is_success    => ( is => 'ro', isa => Bool,);
     has error_message => ( is => 'ro', isa => Str,);
@@ -39,7 +39,6 @@ with 'Music::LastFM::Role::Logger';
         predicate => 'has_object',
         clearer   => 'clear_object',
     );
-    has data        => (is => 'ro');
 
 
 
@@ -65,14 +64,15 @@ with 'Music::LastFM::Role::Logger';
         default => sub { \%available_objects },
     );
 
-    sub BUILD {
-        my $self = shift;
-        $self->_set_data($self->_data); 
-    }
-
+    # Wrapper around decode_json
     sub _data {
         my $self = shift;
-        my $data = decode_json( $self->json );
+        return decode_json( $self->json );
+    }
+
+    sub data {
+        my $self = shift;
+        my $data = $self->_data;
         if ( exists $data->{error} ) {
             $self->_set_is_success(0);
             $self->_set_error( $data->{error} );
@@ -84,18 +84,16 @@ with 'Music::LastFM::Role::Logger';
                         );
             return;
         }
-        elsif ($data) {
-            $self->_set_is_success(1);
+        else {
             my $return_value = $self->_parse($data);
             if ($self->has_object) {
                 # TODO Add sanity check from attr_response here!
                 $self->_merge_data($self->object,$return_value);
                 $self->clear_object;   # Clearing object so we don't repeat this.
             }
-            return $self->method->ignore_top ? $return_value->{ ( keys %{$return_value} )[0] }
-                                             : $return_value;
+            return $self->method->ignoretop ? $return_value->{ ( keys %{$return_value} )[0] }
+                                            : $return_value;
         }
-        return;
     }
 
     sub _make_array_of_objects {
@@ -184,9 +182,9 @@ with 'Music::LastFM::Role::Logger';
                  exists $self->expect->{$node_key},);
 
             $return_value->{$node_key} =
-                # Test  Value
+                # Test   # Value
                   $is_array && $is_expected  ?
-                        $self->_make_array_of_objects($node_key,$node_value)
+                       $self->_make_array_of_objects($node_key,$node_value)
                 : $is_array                  ?
                         $self->_parse_array($node_value)
                 : $is_hash  && $is_expected  ?
