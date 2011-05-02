@@ -13,39 +13,36 @@ use Music::LastFM::Meta::EasyAcc;
 
 use Music::LastFM::Agent;
 use Music::LastFM::SessionCache;
+use Music::LastFM::Config;
 use Cache::FileCache;
 use Log::Dispatch;
+use Module::Load;
 
 # Should this all just be a subclass of the agent?
 
-has username => (
-    reader        => '_username',
-    isa           => Str,
-    required      => 1,
-    documentation => 'This is the username for authenticated requests.',
-);
-
 has api_key => (
     reader        => '_api_key',
+    writer        => '_set__api_key',
+    predicate     => '_has__api_key',
     isa           => Str,
-    required      => 1,
     documentation => 'The API Key provided to you by LastFM',
 );
 
 has api_secret => (
-    reader   => '_api_secret',
-    isa      => Str,
-    required => 1,
+    reader    => '_api_secret',
+    writer    => '_set__api_secret',
+    predicate => '_has__api_secret',
+    isa       => Str,
     documentation =>
         'The API Secret provided to you by LastFM.  Used to sign requests, so keep it secret.',
 );
 
-has session_cache_filename => (
-    is      => 'ro',
-    isa     => Str,
-    default => $ENV{HOME} . '/.music-lastfm-sessions',
-    documentation =>
-        'A filename to store session keys in.  Session Keys have an unlimited lifetime, so storing them is a good idea.',
+has username => (
+    reader    => '_username',
+    writer    => '_set__username',
+    predicate => '_has__username',
+    isa       => Str,
+    documentation => q{The default username for authenticated requests.} ,
 );
 
 has scrobble_queue_filename => (
@@ -54,20 +51,37 @@ has scrobble_queue_filename => (
     default       => $ENV{HOME} . '/.music-lastfm-queue',
     documentation => 'A filename to store scrobbles in before submitting',
 );
+
 has log_filename => (
-    is  => 'ro',
-    isa => Str,
+    is        => 'ro',
+    writer    => '_set__log_filename',
+    predicate => '_has__log_filename',
+    isa       => Str,
     documentation =>
         'Log file location to log requests and responses for debugging',
 );
+
+sub has_log_filename {
+    goto &_has__log_filename;
+}
+
+
+has config_filename => (
+    is            => 'ro',
+    isa           => Str,
+    documentation => 'Filename for the config location',
+);
+
 has cache_time => (
     isa           => Int,
     reader        => '_cache_time',
-    default       => 18_000,
+    default       => 604_800,  # One week per LastFM API terms.
     documentation => 'Amount of time to cache LastFM responses',
 );
 has url => (
     reader        => '_url',
+    writer        => '_set__url',
+    predicate     => '_has__url',
     isa           => Str,
     default       => 'http://ws.audioscrobbler.com/2.0/',
     documentation => 'The URL for the LastFM webservice',
@@ -97,21 +111,20 @@ has session_cache => (
     lazy    => 1,
     builder => '_session_cache_default',
     documentation =>
-        'This is the object used to store authenticated sessions in.  Defaults to a <L:Music::LastFM::SessionCache> object, using the session_cache_filename attribute as the file',
+        'This is the object used to store authenticated sessions in.  Defaults to a <L:Music::LastFM::SessionCache> object.',
 );
 
 sub _session_cache_default {
     my $self = shift;
-    return Music::LastFM::SessionCache->new(
-        filename => $self->session_cache_filename );
+    return Music::LastFM::SessionCache->new(config => $self->config);
 }
 
 has logger => (
-    reader  => '_logger',
-    isa     => Logger,
-    builder => '_logger_default',
+    reader    => '_logger',
+    isa       => Logger,
+    builder   => '_logger_default',
     predicate => '_has_logger',
-    lazy    => 1,
+    lazy      => 1,
     documentation =>
         'This is the object used for logging.  The default is a Log::Dispatch object.  If the log_filename attribute is set, items are logged to this file.  Any object with debug, info, error, and critical methods can be used here.',
 );
@@ -147,47 +160,75 @@ sub _logger_default {
 
 sub BUILD {
     my $self = shift;
-    if ($self->_has_logger) {
-        Music::LastFM::Logger->initialize(logger => $self->_logger);
+    if ( $self->_has_logger ) {
+        Music::LastFM::Logger->initialize( logger => $self->_logger );
+    }
+    if ( $self->has_config_filename ) {
+        Music::LastFM::Config->initialize(
+            filename => $self->config_filename );
+        my $options = Music::LastFM::Config->instance();
+        for my $attrib (qw(api_key api_secret url log_filename username)) {
+            my $writer = '_set__' . $attrib;
+            my $reader = '_has__' . $attrib;
+            if ( ( !$self->$reader ) && ( $options->get_option($attrib) ) ) {
+                $self->$writer( $options->get_option($attrib) );
+            }
+        }
+    }
+    if ( ! $self->_has__api_key  ) {
+        Music::LastFM::Exception->throw(
+            "Required option api_key not set");
     }
     Music::LastFM::Agent->initialize(
         url           => $self->_url,
         api_key       => $self->_api_key,
-        api_secret    => $self->_api_secret,
-        username      => $self->_username,
         cache         => $self->_cache,
         session_cache => $self->_session_cache,
         logger        => $self->_logger,
     );
+    if ($self->_has__api_secret) {
+        $self->agent->set_api_secret($self->_api_secret);
+    }
+    if ($self->_has__username) {
+        $self->agent->set_username($self->_username);
+    }
     return;
 }
+
+sub config { return Music::LastFM::Config->instance; }
 
 sub agent { return Music::LastFM::Agent->instance; }
 ## no critic (Subroutines::RequireArgUnpacking)
 sub query { return shift->agent->query(@_); }
 ## use critic
+
+# This imports the agent attributes into our namespace for convenience.
 do {
     my $package_meta = __PACKAGE__->meta();
     my $agent_meta   = Class::MOP::Class->initialize('Music::LastFM::Agent');
+
     for my $agent_attribute ( $agent_meta->get_all_attributes() ) {
     METHOD:
-        for my $attribute_method_name (
-            $agent_attribute->associated_methods() ) {
+        for my $attribute_method (
+            @{$agent_attribute->associated_methods} ) {
+
+            my $attribute_method_name = $attribute_method->name;
 
             # my $attribute_method_name = $attribute_method->name();
             next METHOD if ( $attribute_method_name =~ m{ \A _ }xms );
 
             # TODO : Check for collision with __PACKAGE__ namespace!
-            $package_meta->add_method( $agent_attribute->name,
-                sub { shift->agent->$attribute_method_name() } );
+            $package_meta->add_method( $attribute_method_name,
+                sub { shift->agent->$attribute_method_name(@_) } );
         }
     }
 
     my $object_base = 'Music::LastFM::Object::';
+
+    # Consider using a plugin model for this?  Am I overthinking it?
     for my $object_type (qw(Artist Album Track Event Venue Tag User)) {
         my $package_name = $object_base . $object_type;
-
-        #        require $package_name;
+        load ($package_name);
         $package_meta->add_method(
             'new_' . lc($object_type),
             sub {
@@ -195,6 +236,7 @@ do {
             },
         );
     }
+
 };
 
 __PACKAGE__->meta->make_immutable;

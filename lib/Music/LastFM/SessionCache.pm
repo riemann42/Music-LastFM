@@ -1,43 +1,31 @@
 package Music::LastFM::SessionCache;
 
 use Moose;
-use MooseX::Types::Moose qw(Str);
+use Music::LastFM::Types qw(Str Options);
+with 'Music::LastFM::Role::Logger';
 
-has filename => (
-    isa=> Str,
-    is => 'ro',
-    required => 1
-);
-
-has '_sessioncache' => (
-    reader => '_sessioncache',
-    lazy => 1,
+has config => (
+    isa     => 'Music::LastFM::Config',
+    is      => 'ro',
+    lazy    => 1,
     default => sub {
-        my $self = shift;
-        my $s =  Config::Options->new( { optionfile => $self->filename } );
-        $s->fromfile_perl();
-        unless ( $s->{sessions} ) {$s->{sessions}->{sessions} = {}; }
-        return $s;
+        Music::LastFM::Config->instance();
     }
 );
 
 sub set {
-    my $self = shift;
-    my ($k,$v) = @_;
-    $self->_sessioncache->{sessions}->{$k} = $v;
-    $self->_sessioncache->tofile_perl();
+    my ($self,$k,$v) = @_;
+    $self->config->set_option($k => $v, 'sessions');
 }
 
 sub get{
-    my $self = shift;
-    my ($k) = @_;
-    return $self->_sessioncache->{sessions}->{$k}
+    my ($self,$k) = @_;
+    $self->config->get_option($k, 'sessions');
 }
 
 sub has_value {
-    my $self = shift;
-    my ($k) = @_;
-    return ((exists $self->_sessioncache->{sessions}->{$k}) &&  (defined $self->_sessioncache->{sessions}->{$k}));
+    my ($self,$k) = @_;
+    $self->config->has_option($k, 'sessions');
 }
 
 no Moose;

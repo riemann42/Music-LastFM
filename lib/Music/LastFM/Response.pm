@@ -41,8 +41,6 @@ with 'Music::LastFM::Role::Logger';
     );
     has data        => (is => 'ro');
 
-
-
     # TODO : Clean up this hack!!!
     my %available_objects = (
         'album'  => 'Music::LastFM::Object::Album',
@@ -54,15 +52,17 @@ with 'Music::LastFM::Role::Logger';
         'venue'  => 'Music::LastFM::Object::Venue',
     );
 
-    # Blah.  This seems wrong.
-    for (values %available_objects) { load $_ }
 
     has expect => (
         is      => 'rw',
         isa     => Metas,
         coerce  => 1,
         lazy    => 1,
-        default => sub { \%available_objects },
+        default => sub { 
+            # Blah.  This seems wrong.
+            for (values %available_objects) { load $_ }
+            return \%available_objects 
+        },
     );
 
     sub BUILD {
@@ -92,8 +92,9 @@ with 'Music::LastFM::Role::Logger';
                 $self->_merge_data($self->object,$return_value);
                 $self->clear_object;   # Clearing object so we don't repeat this.
             }
-            return $self->method->ignore_top ? $return_value->{ ( keys %{$return_value} )[0] }
-                                             : $return_value;
+            return $self->method->ignore_top 
+                ? $return_value->{ ( keys %{$return_value} )[0] }
+                : $return_value;
         }
         return;
     }

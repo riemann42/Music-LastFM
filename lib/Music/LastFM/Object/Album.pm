@@ -3,17 +3,34 @@ use warnings; use strict; use Carp;
 use version; our $VERSION = qv('0.0.3');
 
 use Moose;
-use Music::LastFM::Types qw(Image Artist Wiki Tags  Tracks UUID DateTime Str Int Bool);
+use Music::LastFM::Types qw(
+    Image   Artist      Wiki    Tags    Tracks 
+    UUID    DateTime    Str     Int     Bool 
+    Shouts
+);
 use Music::LastFM::Meta::LastFM;
 extends qw(Music::LastFM::Object);
 
 use namespace::autoclean;
 
-has 'name' => ( 
-    is => 'rw', 
-    isa => Str, 
-    required => 1,
+has '+name' => ( 
     identity => 'album' 
+);
+
+has 'artist' => ( 
+    is => 'rw', 
+    isa => Artist, 
+    identity => 'artist', 
+    coerce => 1,
+    required => 1,
+);
+
+has '+url' => ( 
+    apimethod => 'album.getInfo'
+);
+
+has '+image' => ( 
+    apimethod => 'album.getInfo'
 );
 
 has 'mbid' => (
@@ -22,31 +39,6 @@ has 'mbid' => (
     coerce    => 1,
     identity  => 'mbid',
     apimethod => 'album.getInfo'
-);
-
-has 'url' => ( 
-    is => 'rw', 
-    isa => Str,
-    apimethod => 'album.getInfo'
-);
-
-has 'url' => ( 
-    is => 'rw', 
-    isa => Str,
-    apimethod => 'album.getInfo'
-);
-has 'image' => ( 
-    is => 'rw', 
-    isa => Image, 
-    coerce => 1,
-    apimethod => 'album.getInfo'
-);
-
-has 'artist' => ( 
-    is => 'rw', 
-    isa => Artist, 
-    identity => 'artist', 
-    coerce => 1
 );
 
 has 'streamable' => ( 
@@ -98,6 +90,16 @@ has 'toptags' => (
     coerce => 1, 
     apimethod => 'album.getTopTags' 
 );
+
+has 'shouts' => (
+    is => 'ro',
+    isa => Shouts,
+    coerce => 1,
+    apimethod => 'album.getShouts'
+);
+
+sub add_tags    { shift->_add_tags(   method => 'album.addTags',   @_ ); }
+sub share       { shift->_share(      method => 'album.share',     @_ ); }
 
 
 1;

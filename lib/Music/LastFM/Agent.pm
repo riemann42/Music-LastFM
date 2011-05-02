@@ -25,15 +25,9 @@ use Readonly;
 Readonly my $NANOSLEEP_TIME => 100;
 
 has url => (
-    is       => 'rw',
-    isa      => Str,
-    required => 1,
-    default  => 'http://ws.audioscrobbler.com/2.0/',
-);
-has username => (
-    is       => 'rw',
-    isa      => Str,
-    required => 1,
+    is      => 'rw',
+    isa     => Str,
+    default => 'http://ws.audioscrobbler.com/2.0/',
 );
 has api_key => (
     is       => 'rw',
@@ -41,9 +35,8 @@ has api_key => (
     required => 1,
 );
 has api_secret => (
-    is       => 'rw',
-    isa      => Str,
-    required => 1,
+    is  => 'rw',
+    isa => Str,
 );
 has lwp_ua => (
     is      => 'rw',
@@ -54,7 +47,7 @@ has lwp_ua => (
 has cache_time => (
     is      => 'rw',
     isa     => Int,
-    default => 3600,
+    default => 604_800,    # One week per LastFM API terms.
 );
 has cache => (
     is      => 'rw',
@@ -73,10 +66,22 @@ has session_cache => (
         set_sk => 'set',
     },
 );
+
+has username => (
+    is  => 'rw',
+    isa => Str,
+);
+
+sub has_sk {
+    my ( $self, $username ) = shift;
+    return ( defined $self->get_sk($username) );
+}
 has rate_limit => (
     is      => 'rw',
     isa     => Num,
-    default => .5,
+    default => .2,     # Rule is 5 requests per second, averaged over 5 mins.
+                       # Rather than having it work fast and then crawl, we
+                       # just set this to .2.
 );
 
 sub _build_lwp_ua {
@@ -90,7 +95,12 @@ sub _build_lwp_ua {
 sub auth {
     my $self     = shift;
     my $params   = shift;
-    my $username = shift;
+    my $username = shift || ( $self->has_username ? $self->username : undef );
+    if ( !$username ) {
+        $self->die( q{A username must be provided for authenticated queries. }
+                . q{You can set the username attribute, or pass it as an option}
+                . q{to the query paramater} );
+    }
     if ( !$self->has_session_cache ) {
         $self->die(
             q{Can't authorize a request without a session_cache object});
@@ -100,7 +110,7 @@ sub auth {
     }
     else {
         $self->die(
-                  qq{No session key stored for $username.\n}
+            qq{No session key stored for $username.\n}
                 . qq{Please make sure you have run gettoken AND getsession for this user.\n}
                 . q{See AUTHENTICATION in the Music::LastFM POD.},
             'Music::LastFM::Exception::AuthenticationError'
@@ -118,6 +128,11 @@ sub _key {
 sub sign {
     my $self       = shift;
     my $params_ref = shift;
+    if ( !$self->has_api_secret ) {
+        $self->die(
+            q{api_secret needs to be provided to sign requests such as this one.}
+        );
+    }
     $params_ref->{api_key} = $self->api_key;
     my $string_to_digest = join q{},
         map { $_ . $params_ref->{$_} } sort keys %{$params_ref};
@@ -136,9 +151,9 @@ sub gettoken {
         return {
             token => $resp->data->{token},
             url   => 'http://www.last.fm/api/auth/?api_key='
-                   . $self->api_key
-                   . '&token='
-                   . $resp->data->{token}
+                . $self->api_key
+                . '&token='
+                . $resp->data->{token}
         };
     }
     else {
@@ -162,10 +177,10 @@ sub getsession {
             ( $resp->data->{name}, $resp->data->{key} );
         if ( !$self->has_session_cache ) {
             $self->warning(
-                     qq{Can't save this session, because no session cache defined.\n}
+                qq{Can't save this session, because no session cache defined.\n}
                     . q{Please re-read the Music::LastFM Documentation"} );
-            $self->set_sk( $username, $session_key );
         }
+        $self->set_sk( $username => $session_key );
         return $resp->data;
     }
     else {
@@ -195,19 +210,21 @@ sub _query_pair {
 }
 
 sub _build_query {
-    my ( $self, $options_ref ) = @_;
-    $options_ref->{options}->{format} = 'json';
-    my %query_hash = %{ $options_ref->{options} };
-    $query_hash{method} = $options_ref->{method}->name;
+    my ( $self, $params_ref ) = @_;
 
-    if (   ( $options_ref->{method}->auth_required )
-        && ( !$options_ref->{sk} ) ) {
-        $self->auth( \%query_hash, $options_ref->{username} );
+    #$params_ref->{options}->{format} = 'json';
+    my %query_hash = %{ $params_ref->{options} };
+    $query_hash{method}  = $params_ref->{method}->name;
+    $query_hash{api_key} = $self->api_key;
+
+    if (   ( $params_ref->{method}->auth_required )
+        && ( !$params_ref->{sk} ) ) {
+        $self->auth( \%query_hash, $params_ref->{username} );
     }
-    if ( $options_ref->{method}->sign_required ) {
+    if ( $params_ref->{method}->sign_required ) {
         $self->sign( \%query_hash );
     }
-    $query_hash{api_key} = $self->api_key;
+    $query_hash{format} = 'json';
     my $query_string = q{};
     $query_string = join q{&}, map { _query_pair( $_, $query_hash{$_} ) }
         sort keys %query_hash;
@@ -218,7 +235,7 @@ sub _build_request {
     my ( $self, $lastfm_method, $query_string ) = @_;
     my $url = $self->url();
     my $lwp_request;
-    if ( $lastfm_method eq 'GET' ) {
+    if ( $lastfm_method->http_method eq 'GET' ) {
         $lwp_request = HTTP::Request->new( 'GET', "$url?$query_string" );
         $self->info(qq{Performing query $url?$query_string});
     }
@@ -247,64 +264,70 @@ sub limit_request_rate {
     return;
 }
 
+sub _perform_query {
+    my ( $self, $params_ref, $query_string ) = @_;
+
+    my $lwp_request =
+        $self->_build_request( $params_ref->{method}, $query_string );
+    my $lwp_resp = $self->lwp_ua->request($lwp_request);
+
+    $self->debug( q{Response to query is: }
+            . $lwp_resp->content
+            . q{ and success is }
+            . $lwp_resp->status_line );
+
+    if ( !$lwp_resp->is_success ) {
+        $self->die(
+            'Response to query failed: ' . $lwp_resp->status_line,
+            undef,    # Fix me
+            $lwp_resp
+        );
+        return;
+    }
+
+    return $lwp_resp->content;
+}
+
 sub query {
     my ( $self, @opts ) = @_;
     my $options_default = {};
-    my (%options) = validated_hash(
+
+    my (%params) = validated_hash(
         \@opts,
-        method  => { isa => Method, coerce => 1 },
-        options => {
-            isa     => HashRef,
-            default => $options_default,
-        },
-        object => { optional => 1 },
-        cache_time =>
-            { isa => Int, optional => 1, default => $self->cache_time },
-
-        #       session => { isa => Session },
+        method  =>    { isa => Method,  coerce  => 1 },
+        options =>    { isa => HashRef, default => $options_default, },
+        cache_time => { isa => Int,     default => $self->cache_time },
+        object =>     { isa => 'Music::LastFM::Object', optional => 1 },
     );
-    $options{method}->set_agent($self);
-    my $query_string = $self->_build_query( \%options );
 
-    my $content = q{};
-    if (   ( $options{method} eq 'GET' )
-        && ( $self->has_cache )
-        && ( $options{cache_time} ) ) {
-        $self->debug("Recovered from cache $query_string");
-        $content = $self->cache_get( $self->key($query_string) );
+    $params{method}->set_agent($self);
+
+    my $query_string = $self->_build_query( \%params );
+    if (   ( !$params{method}->http_method eq 'GET' )
+        || ( !$self->has_cache ) ) {
+        $params{cache_time} = 0;
     }
-
+    my $content = q{};
+    if ( $params{cache_time} ) {
+        $self->debug("Recovered from cache: $query_string");
+        $content = $self->cache_get( $self->_key($query_string) );
+    }
     if ( !$content ) {
         $self->limit_request_rate();
-
-        my $lwp_request =
-            $self->_build_request( $options{method}, $query_string );
-        my $lwp_resp = $self->lwp_ua->request($lwp_request);
-
-        $self->debug( '"Response to query is: '
-                    . $lwp_resp->content
-                    . ' and success is '
-                    . $lwp_resp->status_line );
-        if ( !$lwp_resp->is_success ) {
-            $self->die( 'Response to query failed: ',
-                $lwp_resp->status_line );
-            return;
-        }
-        $content = $lwp_resp->content;
-        if ( ( $self->has_cache ) && ( $options{cache_time} ) ) {
+        $content = $self->_perform_query( \%params, $query_string );
+        if ( $params{cache_time} ) {
+            $self->debug("Saving to cache: $query_string");
             $self->cache_set( $self->_key($query_string),
-                $content, $options{cache_time} );
+                $content, $params{cache_time} );
         }
     }
-    my %response_options = (
-        method => $options{method},
+    return Music::LastFM::Response->new(
+        method => $params{method},
         json   => $content,
         agent  => $self,
+        exists $params{object} ? ( object => $params{object} ) 
+                               : (),
     );
-    if ( exists $options{object} ) {
-        $response_options{object} = $options{object};
-    }
-    return Music::LastFM::Response->new(%response_options);
 }
 
 __PACKAGE__->meta->make_immutable;

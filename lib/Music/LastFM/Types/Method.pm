@@ -15,7 +15,7 @@ use Music::LastFM::Method;
 
 our %METHODS = (
     "album.addTags" =>
-        { name => "album.addTags", auth_required => 1, method => 'POST' },
+        { name => "album.addTags", auth_required => 1, http_method => 'POST' },
     "album.getBuylinks" => { name => "album.getBuylinks" },
     "album.getInfo"     => { name => "album.getInfo", },
     "album.getShouts"   => { name => "album.getShouts" },
@@ -23,12 +23,12 @@ our %METHODS = (
         { name => "album.getTags", sign_required => 1, auth_required => 1, },
     "album.getTopTags" => { name => "album.getTopTags", },
     "album.removeTag" =>
-        { name => "album.removeTag", auth_required => 1, method => 'POST' },
+        { name => "album.removeTag", auth_required => 1, http_method => 'POST' },
     "album.search" => { name => "album.search", },
     "album.share" =>
-        { name => "album.share", auth_required => 1, method => 'POST' },
+        { name => "album.share", auth_required => 1, http_method => 'POST' },
     "artist.addTags" =>
-        { name => "artist.addTags", auth_required => 1, method => 'POST' },
+        { name => "artist.addTags", auth_required => 1, http_method => 'POST' },
     "artist.getCorrection" => { name => "artist.getCorrection" },
     "artist.getEvents"     => { name => "artist.getEvents", },
     "artist.getImages"     => { name => "artist.getImages" },
@@ -43,15 +43,15 @@ our %METHODS = (
     "artist.getTopTags"   => { name => "artist.getTopTags", },
     "artist.getTopTracks" => { name => "artist.getTopTracks", },
     "artist.removeTag" =>
-        { name => "artist.removeTag", auth_required => 1, method => 'POST' },
+        { name => "artist.removeTag", auth_required => 1, http_method => 'POST' },
     "artist.search" => { name => "artist.search", },
     "artist.share" =>
-        { name => "artist.share", auth_required => 1, method => 'POST' },
+        { name => "artist.share", auth_required => 1, http_method => 'POST' },
     "artist.shout" =>
-        { name => "artist.shout", auth_required => 1, method => 'POST' },
+        { name => "artist.shout", auth_required => 1, http_method => 'POST' },
     "auth.getMobileSession" =>
         { name => "auth.getMobileSession", sign_required => 1, },
-    "auth.getSession" => { name => "auth.getSession", sign_required => 1, },
+    "auth.getSession" => { name => "auth.getSession", sign_required => 1 },
     "auth.getToken"   => { name => "auth.getToken",   sign_required => 1, ignore_top => 0},
     "chart.getHypedArtists" => { name => "chart.getHypedArtists", },
     "chart.getHypedTracks"  => { name => "chart.getHypedTracks", },
@@ -60,14 +60,14 @@ our %METHODS = (
     "chart.getTopTags"      => { name => "chart.getTopTags", },
     "chart.getTopTracks"    => { name => "chart.getTopTracks", },
     "event.attend" =>
-        { name => "event.attend", auth_required => 1, method => 'POST' },
+        { name => "event.attend", auth_required => 1, http_method => 'POST' },
     "event.getAttendees" => { name => "event.getAttendees", },
     "event.getInfo"      => { name => "event.getInfo", },
     "event.getShouts"    => { name => "event.getShouts", },
     "event.share" =>
-        { name => "event.share", auth_required => 1, method => 'POST' },
+        { name => "event.share", auth_required => 1, http_method => 'POST' },
     "event.shout" =>
-        { name => "event.shout", auth_required => 1, method => 'POST' },
+        { name => "event.shout", auth_required => 1, http_method => 'POST' },
     "geo.getEvents"           => { name => "geo.getEvents", },
     "geo.getMetroArtistChart" => { name => "geo.getMetroArtistChart", },
     "geo.getMetroHypeArtistChart" =>
@@ -90,11 +90,11 @@ our %METHODS = (
     "group.getWeeklyChartList"   => { name => "group.getWeeklyChartList", },
     "group.getWeeklyTrackChart"  => { name => "group.getWeeklyTrackChart", },
     "library.addAlbum" =>
-        { name => "library.addAlbum", auth_required => 1, method => 'POST' },
+        { name => "library.addAlbum", auth_required => 1, http_method => 'POST' },
     "library.addArtist" =>
-        { name => "library.addArtist", auth_required => 1, method => 'POST' },
+        { name => "library.addArtist", auth_required => 1, http_method => 'POST' },
     "library.addTrack" =>
-        { name => "library.addTrack", auth_required => 1, method => 'POST' },
+        { name => "library.addTrack", auth_required => 1, http_method => 'POST' },
     "library.getAlbums"  => { name => "library.getAlbums", },
     "library.getArtists" => {
         name    => "library.getArtists",
@@ -102,15 +102,15 @@ our %METHODS = (
     },
     "library.getTracks" => { name => "library.getTracks", },
     "playlist.addTrack" =>
-        { name => "playlist.addTrack", auth_required => 1, method => 'POST' },
+        { name => "playlist.addTrack", auth_required => 1, http_method => 'POST' },
     "playlist.create" =>
-        { name => "playlist.create", auth_required => 1, method => 'POST' },
+        { name => "playlist.create", auth_required => 1, http_method => 'POST' },
     "playlist.fetch" =>
-        { name => "playlist.fetch", auth_required => 1, method => 'POST' },
+        { name => "playlist.fetch", auth_required => 1, http_method => 'POST' },
     "radio.getPlaylist" => { name => "radio.getPlaylist", },
     "radio.search"      => { name => "radio.search", },
     "radio.tune" =>
-        { name => "radio.tune", auth_required => 1, method => 'POST' },
+        { name => "radio.tune", auth_required => 1, http_method => 'POST' },
     "tag.getInfo"              => { name => "tag.getInfo", },
     "tag.getSimilar"           => { name => "tag.getSimilar", },
     "tag.getTopAlbums"         => { name => "tag.getTopAlbums", },
@@ -122,9 +122,9 @@ our %METHODS = (
     "tag.search"               => { name => "tag.search", },
     "tasteometer.compare"      => { name => "tasteometer.compare", },
     "track.addTags" =>
-        { name => "track.addTags", auth_required => 1, method => 'POST' },
+        { name => "track.addTags", auth_required => 1, http_method => 'POST' },
     "track.ban" =>
-        { name => "track.ban", auth_required => 1, method => 'POST' },
+        { name => "track.ban", auth_required => 1, http_method => 'POST' },
     "track.getBuylinks"   => { name => "track.getBuylinks", },
     "track.getCorrection" => { name => "track.getCorrection", },
     "track.getFingerprintMetadata" =>
@@ -136,18 +136,18 @@ our %METHODS = (
     "track.getTopFans" => { name => "track.getTopFans", },
     "track.getTopTags" => { name => "track.getTopTags", },
     "track.love" =>
-        { name => "track.love", auth_required => 1, method => 'POST' },
+        { name => "track.love", auth_required => 1, http_method => 'POST' },
     "track.removeTag" =>
-        { name => "track.removeTag", auth_required => 1, method => 'POST' },
+        { name => "track.removeTag", auth_required => 1, http_method => 'POST' },
     "track.scrobble" =>
-        { name => "track.scrobble", auth_required => 1, method => 'POST' },
+        { name => "track.scrobble", auth_required => 1, http_method => 'POST' },
     "track.search" => { name => "track.search", },
     "track.share" =>
-        { name => "track.share", auth_required => 1, method => 'POST' },
+        { name => "track.share", auth_required => 1, http_method => 'POST' },
     "track.unban" =>
-        { name => "track.unban", auth_required => 1, method => 'POST' },
+        { name => "track.unban", auth_required => 1, http_method => 'POST' },
     "track.unlove" =>
-        { name => "track.unlove", auth_required => 1, method => 'POST' },
+        { name => "track.unlove", auth_required => 1, http_method => 'POST' },
     "track.updateNowPlaying" => {
         name         => "track.updateNowPlaying",
         auth_required => 1,
@@ -179,11 +179,11 @@ our %METHODS = (
     "user.getWeeklyChartList"   => { name => "user.getWeeklyChartList", },
     "user.getWeeklyTrackChart"  => { name => "user.getWeeklyTrackChart", },
     "user.shout" =>
-        { name => "user.shout", auth_required => 1, method => 'POST' },
+        { name => "user.shout", auth_required => 1, http_method => 'POST' },
     "venue.getEvents"     => { name => "venue.getEvents", },
     "venue.getPastEvents" => { name => "venue.getPastEvents", },
     "venue.search" =>
-        { name => "venue.search", auth_required => 1, method => 'POST' },
+        { name => "venue.search", auth_required => 1, http_method => 'POST' },
 );
 
 coerce Method, from Str, via {

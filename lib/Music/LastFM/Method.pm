@@ -18,7 +18,7 @@ has 'sign_required' =>
 sub _build_sign { my $self = shift; return $self->auth_required; }
 
 has 'auth_required' => ( is => 'ro', isa => Bool, default => 0, );
-has 'method'       => ( is => 'ro', isa => Str,  default => 'GET', );
+has 'http_method'       => ( is => 'ro', isa => Str,  default => 'GET', );
 has 'expect'       => ( is => 'ro', isa => Metas, );
 has 'ignore_top'    => ( is => 'ro', isa => Bool, default => 1, );
 has 'agent'        => (
