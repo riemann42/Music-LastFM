@@ -38,7 +38,7 @@ sub execute {
         options => $self->options,
         %options
     );
-    $resp->data();
+    return $resp->data();
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -17,3 +17,4 @@
 -wbb="% + - * / x != == >= <= =~ < > | & **= += *= &= <<= &&= -= /= |= >>= ||= .= %= ^= x="
         # Break before all operators
 -nsbl
+-nola   # Don't outdent labels

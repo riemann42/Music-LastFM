@@ -10,7 +10,7 @@ around add_attribute => sub {
             $attr->name,
             sub {
                 my $self = shift;
-                if ( !$attr->has_value($self) ) {
+                if (   (!$attr->has_value($self) ) ) {
                     $self->_api_builder($attr);
                 }
                 return $attr->get_value($self);

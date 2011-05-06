@@ -4,8 +4,10 @@ use strict;
 use Carp;
 use version; our $VERSION = qv('0.0.3');
 use Moose;
+use English qw( -no_match_vars );
 
-use Music::LastFM::Types qw(Image HashRef SmArrayRef Str Int Method Bool);
+use Moose::Util::TypeConstraints;
+use Music::LastFM::Types qw(Image HashRef SmArrayRef Str Int Method Bool Event);
 use Music::LastFM::Meta::LastFM;
 use MooseX::Params::Validate;
 
@@ -36,9 +38,37 @@ has 'image' => (
     coerce => 1,
 );
 
-sub _api_builder {
+has 'attr' => (
+    is     => 'ro',
+    isa    => HashRef,
+    api    => '@attr',
+);
+
+sub check {
+    my $self = shift;
+    my $ret = 0;
+    eval {
+        $ret = inner(@_);
+    };
+    if ($EVAL_ERROR) {
+        if (   (Music::LastFM::Exception::APIError->caught($EVAL_ERROR))
+            && ($EVAL_ERROR->error_code == 6) ) {
+            return 0;
+        }
+        elsif ( Music::LastFM::Exception->caught($EVAL_ERROR)) {
+            $EVAL_ERROR->show_trace(1);
+        }
+    }
+    else { 
+        return $ret;
+    }
+};
+
+
+sub query_attribute {
     my $self = shift;
     my $attr = shift;
+    my $options = shift || {};
     if ( !ref $attr ) {
         $attr = $self->meta->find_attribute_by_name($attr);
     }
@@ -47,12 +77,16 @@ sub _api_builder {
     }
     $attr->apimethod->execute(
         object  => $self,
-        options => $self->_find_identity,
+        options => {%{$options}, %{$self->_find_identity}},
     );
     if ( $attr->has_value($self) ) {
         return $attr->get_value($self);
     }
     return;
+}
+
+sub _api_builder {
+    goto &query_attribute;
 }
 
 sub _find_identity {
@@ -82,6 +116,7 @@ sub _validate_input {
             default => $options_default,
         },
         username => { optional => 1 },
+        cache_time => { isa => Int,     optional => 1 },
         @opts,
     );
     $params{options} =
@@ -96,6 +131,20 @@ sub _api_action {
     return $resp->is_success();
 }
 
+sub _api_query {
+    my ( $self, @opts ) = @_;
+    my $params_ref = $self->_validate_input( \@opts,
+        response_type                => {  },
+        MX_PARAMS_VALIDATE_CACHE_KEY => '_query_api'
+    );
+    my $type = find_type_constraint($params_ref->{response_type});
+    delete $params_ref->{response_type};
+    my $resp       = $self->agent->query( %{$params_ref} );
+    if ($resp->is_success()) {
+        return $type->coerce($resp->data);
+    }
+    return undef;
+}
 sub _add_tags {
     my ( $self, @opts ) = @_;
     my $params_ref = $self->_validate_input(
@@ -103,7 +152,7 @@ sub _add_tags {
         tags => { isa => SmArrayRef },
         MX_PARAMS_VALIDATE_CACHE_KEY => '_add_tags'  # Ugly, but needed.
     );
-    $params_ref->options->{tags} = join( ",", @{ $params_ref->{tags} } );
+    $params_ref->{options}->{tags} = join( ",", @{ $params_ref->{tags} } );
     delete $params_ref->{tags};
     $self->_api_action( %{$params_ref} );
 }
@@ -115,7 +164,7 @@ sub _remove_tag {
             tag                          => { isa => Str },
             MX_PARAMS_VALIDATE_CACHE_KEY => '_remove_tag'
         );
-        $params_ref->options->{tag} = $params_ref->{tag};
+        $params_ref->{options}->{tag} = $params_ref->{tag};
         delete $params_ref->{tag};
         $self->_api_action( %{$params_ref} );
 }
@@ -142,6 +191,7 @@ sub _share {
         delete $params->{message};
         return $self->_api_action( %{$params} );
 }
+
 
 __PACKAGE__->meta->make_immutable();
 no Moose;

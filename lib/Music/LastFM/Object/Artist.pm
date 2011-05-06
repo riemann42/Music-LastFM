@@ -8,13 +8,14 @@ use Moose;
 use Music::LastFM::Types qw(
     Image   ArtistStats Wiki    Artists 
     Tags    Users       UUID    Str 
-    Bool    Int         Shouts
+    Bool    Int         Shouts  Events
+    Images
 );
 
 extends qw(Music::LastFM::Object);
 use namespace::autoclean;
 
-has '+name'  => ( identity  => 'artist' );
+has '+name'  => ( identity  => 'artist'         );
 has '+url'   => ( apimethod => 'artist.getInfo' );
 has '+image' => ( apimethod => 'artist.getInfo' );
 
@@ -30,7 +31,7 @@ has 'streamable' => (
     isa       => Bool,
     apimethod => 'artist.getInfo'
 );
-has 'userplaycount' => (
+has 'user_playcount' => (
     is  => 'ro',
     isa => Int,
     api => 'playcount'
@@ -58,12 +59,6 @@ has 'similar_extended' => (
     apimethod => 'artist.getSimilar',
     api       => 'similarartists',
 );
-has 'tags' => (
-    is        => 'ro',
-    isa       => Tags,
-    coerce    => 1,
-    apimethod => 'artist.getTags'
-);
 has 'toptags' => (
     is        => 'ro',
     isa       => Tags,
@@ -90,6 +85,32 @@ has 'shouts' => (
     coerce => 1,
     apimethod => 'artist.getShouts'
 );
+has 'events' => (
+    is       => 'ro',
+    isa      => Events,
+    coerce => 1,
+    apimethod => 'artist.getEvents'
+);
+#has 'past_events' => (
+#    is       => 'ro',
+#    isa      => Events,  # TODO : Fix coercion
+#    coerce => 1,
+#    apimethod => 'artist.getPastEvents'
+#);
+has 'images' => (
+    is       => 'ro',
+    isa      => Images,
+    coerce => 1,
+    apimethod => 'artist.getImages'
+);
+
+
+sub user_tags {
+    shift->_api_query( method => 'artist.getTags',
+                       response_type => Tags,
+                       @_);
+};
+
 
 sub playcount {
     my $self = shift;
@@ -103,8 +124,15 @@ sub listeners {
     return $self->has_stats ? $self->stats->{listeners} : undef;
 }
 
+augment check => sub {
+    my $self = shift;
+    return $self->playcount();
+};
+
 sub add_tags    { shift->_add_tags(   method => 'artist.addTags',   @_ ); }
 sub share       { shift->_share(      method => 'artist.share',     @_ ); }
+sub remove_tag  { shift->_remove_tag( method => 'artist.removeTag', @_ ); }
+sub shout       { shift->_shout(      method => 'artist.shout',     @_) }
 
 __PACKAGE__->meta->make_immutable;
 1;

@@ -73,8 +73,7 @@ has username => (
 );
 
 sub has_sk {
-    my ( $self, $username ) = shift;
-    return ( defined $self->get_sk($username) );
+    goto &get_sk;
 }
 has rate_limit => (
     is      => 'rw',
@@ -304,6 +303,7 @@ sub query {
 
     my $query_string = $self->_build_query( \%params );
     if (   ( !$params{method}->http_method eq 'GET' )
+        || ( $params{method}->auth_required)
         || ( !$self->has_cache ) ) {
         $params{cache_time} = 0;
     }

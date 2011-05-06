@@ -99,6 +99,7 @@ has 'shouts' => (
 );
 
 sub add_tags    { shift->_add_tags(   method => 'album.addTags',   @_ ); }
+sub remove_tag  { shift->_remove_tag( method => 'album.removeTag', @_ ); }
 sub share       { shift->_share(      method => 'album.share',     @_ ); }
 
 

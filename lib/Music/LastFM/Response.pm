@@ -137,8 +137,12 @@ with 'Music::LastFM::Role::Logger';
             $data->{name} = $data->{$key};
         }
 
+        if ((! $data->{name}) && ($data->{id})) {
+            $data->{name} = $data->{id};
+        }
+
         if (! $data->{name} ) {
-            $self->die( $self->error_message,
+            $self->die( 'Name arguiment missing',
                         'Music::LastFM::Exception::ParseError',
                         response_object => $self,
                         );

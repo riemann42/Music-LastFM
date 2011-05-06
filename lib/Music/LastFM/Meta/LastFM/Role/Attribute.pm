@@ -1,10 +1,9 @@
 package Music::LastFM::Meta::LastFM::Role::Attribute;
 use Moose::Role;
 use Music::LastFM::Types qw(Method);
-use MooseX::Types::Moose qw(Str);
+use MooseX::Types::Moose qw(Str Bool);
 
 has 'apimethod' => (
-    is        => 'rw',
     isa       => Method,
     coerce    => 1,
     predicate => 'has_apimethod',
@@ -13,7 +12,6 @@ has 'apimethod' => (
 );
 
 has 'identity' => (
-    is        => 'rw',
     isa       => Str,
     predicate => 'has_identity',
     reader    => 'identity',
@@ -21,7 +19,6 @@ has 'identity' => (
 );
 
 has 'api' => (
-    is        => 'ro',
     isa       => Str,
     predicate => 'has_api',
     reader    => 'api',
@@ -34,9 +31,9 @@ before _process_options => sub {
     my $options = shift;
 
     if ( $options->{apimethod} ) {
-        $options->{default} =
-            sub { my $self = shift; return $self->_api_builder($name) };
-        $options->{lazy}   = 1;
+#        $options->{default} =
+#            sub { my $self = shift; return $self->_api_builder($name) };
+#        $options->{lazy}   = 1;
         $options->{reader} = '_raw_' . $name;
     }
 };
