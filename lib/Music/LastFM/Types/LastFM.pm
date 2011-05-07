@@ -9,7 +9,7 @@ use MooseX::Types -declare => [
         Events      Album       Albums      Venue       Venues
         Track       Tracks      Gender      Logger      Cache
         SmArrayRef  Shout       Shouts      FullImage   Images
-        DateTime
+        DateTime    CurrentPlay
 
         )
 ];
@@ -181,5 +181,16 @@ coerce DateTime, from Str, via {
 coerce DateTime, from Int, via {
     find_type_constraint('MooseX::Types::DateTimeX::DateTime')->coerce( $_ ),
 };
+
+
+subtype CurrentPlay, as Dict [
+    track   => Track,
+    last_update => DateTime,
+    play_start  => DateTime,
+    running_time    => Int,
+    required_time   => Int,
+];
+
+
 
 1;

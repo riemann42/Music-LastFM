@@ -15,3 +15,5 @@ Makefile.old
 cover_db
 Debian_CPANTS.txt*
 lib.old
+t/test_log
+t/config.t

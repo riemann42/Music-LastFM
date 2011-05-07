@@ -9,6 +9,7 @@ extends qw(Music::LastFM::Object);
 use Music::LastFM::Types qw(
     DateTime    Gender      Country     Bool 
     Str         Int         Image       Artists
+    Albums      Tracks      Tags
 );
 use namespace::autoclean;
 

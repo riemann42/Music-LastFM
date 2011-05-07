@@ -142,7 +142,7 @@ with 'Music::LastFM::Role::Logger';
         }
 
         if (! $data->{name} ) {
-            $self->die( 'Name arguiment missing',
+            $self->die( 'Name argument missing',
                         'Music::LastFM::Exception::ParseError',
                         response_object => $self,
                         );
@@ -190,7 +190,9 @@ with 'Music::LastFM::Role::Logger';
 
             $return_value->{$node_key} =
                 # Test  Value
-                  $is_array && $is_expected  ?
+                  $node_key = 'nowplaying'   ?       # quick hack, TODO fix
+                        $node_value
+                : $is_array && $is_expected  ?
                         $self->_make_array_of_objects($node_key,$node_value)
                 : $is_array                  ?
                         $self->_parse_array($node_value)

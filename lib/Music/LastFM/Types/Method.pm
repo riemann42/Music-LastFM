@@ -152,7 +152,7 @@ our %METHODS = (
     "track.updateNowPlaying" => {
         name         => "track.updateNowPlaying",
         auth_required => 1,
-        method       => 'POST'
+        http_method       => 'POST'
     },
     "user.getArtistTracks" => { name => "user.getArtistTracks", },
     "user.getBannedTracks" => { name => "user.getBannedTracks", },

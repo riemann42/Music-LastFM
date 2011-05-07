@@ -35,6 +35,11 @@ has 'last_played' => (
 );
 
 has 'id' => (
+    is     => 'rw',
+    isa    => Str,
+);
+
+has 'id' => (
     is        => 'rw',
     isa       => Int,
     apimethod => 'track.getInfo',

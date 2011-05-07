@@ -1,10 +1,10 @@
-package Music::LastFM::SessionCache;
+package Music::LastFM::ScrobbleQueue;
 
 use strict;
 use warnings;
 
 use Moose;
-use Music::LastFM::Types qw(Str Options);
+use Music::LastFM::Types qw(Str  Bool);
 with 'Music::LastFM::Role::Logger';
 
 use File::Queue;
@@ -12,8 +12,9 @@ use JSON;
 
 has _file_object => (
     is      => 'ro',
+    isa     => 'File::Queue',
     lazy    => 1,
-    builder => _file_object_builder,
+    builder => '_file_object_builder',
 );
 
 has _loaded => (
@@ -32,7 +33,7 @@ has filename => (
 
 sub _file_object_builder {
     my $self = shift;
-    $self->debug("Creating queue object of file" . $self->filename);
+    $self->warning("Creating queue object of file" . $self->filename);
     return  File::Queue->new(File => $self->filename);
 }
 
@@ -46,17 +47,13 @@ sub _freeze {
 sub _thaw {
     my $self = shift;
     my $json = shift;
-    return decode_json($req);
+    return decode_json($json);
 }
 
 
 sub add_tracks { 
     my $self = shift;
-    my $tracks = shift;
-    if (! ref $tracks eq "HASH") {
-        $self->die("must pass a hashref to add_tracks");
-    }
-    foreach my $track (@{$tracks})  {
+    foreach my $track (@_)  {
         $self->_file_object->enq($self->_freeze($track));
     }
 }
@@ -64,7 +61,7 @@ sub add_tracks {
 sub next_tracks {
     my $self = shift;
     my $num_tracks = shift;
-    my $next_track = $self->_file_object->peek($num_tracks)
+    my $next_track = $self->_file_object->peek($num_tracks);
     return [ map { $self->_thaw($_) } @{$next_track}];
 }
 
@@ -84,5 +81,4 @@ sub remove_tracks {
     return $removed;
 }
 
-
-
+1;

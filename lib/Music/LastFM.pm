@@ -8,12 +8,14 @@ use version; our $VERSION = qv('0.0.3');
 
 # Use inside out for this, as messing with this is a Bad IdeaTM.
 use MooseX::InsideOut;
-use Music::LastFM::Types qw(Logger Int Str Cache);
+use Music::LastFM::Types qw(Int Str Cache);
 use Music::LastFM::Meta::EasyAcc;
 
 use Music::LastFM::Agent;
 use Music::LastFM::SessionCache;
 use Music::LastFM::Config;
+use Music::LastFM::ScrobbleQueue;
+use Music::LastFM::Scrobble;
 use Cache::FileCache;
 use Log::Dispatch;
 use Module::Load;
@@ -38,11 +40,11 @@ has api_secret => (
 );
 
 has username => (
-    reader    => '_username',
-    writer    => '_set__username',
-    predicate => '_has__username',
-    isa       => Str,
-    documentation => q{The default username for authenticated requests.} ,
+    reader        => '_username',
+    writer        => '_set__username',
+    predicate     => '_has__username',
+    isa           => Str,
+    documentation => q{The default username for authenticated requests.},
 );
 
 has scrobble_queue_filename => (
@@ -50,6 +52,23 @@ has scrobble_queue_filename => (
     isa           => Str,
     default       => $ENV{HOME} . '/.music-lastfm-queue',
     documentation => 'A filename to store scrobbles in before submitting',
+);
+
+has scrobble => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        Music::LastFM::Scrobble->new(
+            agent  => $self->agent,
+            logger => $self->_logger,
+            queue  => Music::LastFM::ScrobbleQueue->new(
+                filename => $self->scrobble_queue_filename,
+                logger   => $self->_logger,
+            )
+        );
+
+    },
 );
 
 has log_filename => (
@@ -65,7 +84,6 @@ sub has_log_filename {
     goto &_has__log_filename;
 }
 
-
 has config_filename => (
     is            => 'ro',
     isa           => Str,
@@ -73,9 +91,9 @@ has config_filename => (
 );
 
 has cache_time => (
-    isa           => Int,
-    reader        => '_cache_time',
-    default       => 604_800,  # One week per LastFM API terms.
+    isa     => Int,
+    reader  => '_cache_time',
+    default => 604_800,         # One week per LastFM API terms.
     documentation => 'Amount of time to cache LastFM responses',
 );
 has url => (
@@ -116,12 +134,13 @@ has session_cache => (
 
 sub _session_cache_default {
     my $self = shift;
-    return Music::LastFM::SessionCache->new(config => $self->config);
+    return Music::LastFM::SessionCache->new( config => $self->config );
 }
 
 has logger => (
-    reader    => '_logger',
-    isa       => Logger,
+    reader => '_logger',
+
+    #    isa       => 'Music::LastFM::Types::Logger',
     builder   => '_logger_default',
     predicate => '_has_logger',
     lazy      => 1,
@@ -175,9 +194,8 @@ sub BUILD {
             }
         }
     }
-    if ( ! $self->_has__api_key  ) {
-        Music::LastFM::Exception->throw(
-            "Required option api_key not set");
+    if ( !$self->_has__api_key ) {
+        Music::LastFM::Exception->throw("Required option api_key not set");
     }
     Music::LastFM::Agent->initialize(
         url           => $self->_url,
@@ -186,11 +204,11 @@ sub BUILD {
         session_cache => $self->_session_cache,
         logger        => $self->_logger,
     );
-    if ($self->_has__api_secret) {
-        $self->agent->set_api_secret($self->_api_secret);
+    if ( $self->_has__api_secret ) {
+        $self->agent->set_api_secret( $self->_api_secret );
     }
-    if ($self->_has__username) {
-        $self->agent->set_username($self->_username);
+    if ( $self->_has__username ) {
+        $self->agent->set_username( $self->_username );
     }
     return;
 }
@@ -208,9 +226,9 @@ do {
     my $agent_meta   = Class::MOP::Class->initialize('Music::LastFM::Agent');
 
     for my $agent_attribute ( $agent_meta->get_all_attributes() ) {
-    METHOD:
-        for my $attribute_method (
-            @{$agent_attribute->associated_methods} ) {
+        METHOD:
+        for my $attribute_method ( @{ $agent_attribute->associated_methods } )
+        {
 
             my $attribute_method_name = $attribute_method->name;
 
@@ -228,7 +246,7 @@ do {
     # Consider using a plugin model for this?  Am I overthinking it?
     for my $object_type (qw(Artist Album Track Event Venue Tag User)) {
         my $package_name = $object_base . $object_type;
-        load ($package_name);
+        load($package_name);
         $package_meta->add_method(
             'new_' . lc($object_type),
             sub {
