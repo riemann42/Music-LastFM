@@ -9,6 +9,7 @@ with 'Music::LastFM::Role::Logger';
 
 use File::Queue;
 use JSON;
+use namespace::autoclean;
 
 has _file_object => (
     is      => 'ro',
@@ -81,4 +82,5 @@ sub remove_tracks {
     return $removed;
 }
 
+__PACKAGE__->meta->make_immutable();
 1;

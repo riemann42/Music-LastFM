@@ -1,0 +1,76 @@
+
+5.008_000 was not in CORE (or so I think)
+
+base was first released with perl 5.00405
+
+Cache::FileCache was not in CORE (or so I think)
+
+Carp was first released with perl 5
+
+Config::Options was not in CORE (or so I think)
+
+Config::Std was not in CORE (or so I think)
+
+Data::Dumper was first released with perl 5.005
+
+Data::Util was not in CORE (or so I think)
+
+Digest::MD5 was first released with perl v5.7.3
+
+Encode was first released with perl v5.7.3
+
+English was first released with perl 5
+
+File::Queue was not in CORE (or so I think)
+
+JSON was not in CORE (or so I think)
+
+Locale::Country was first released with perl v5.7.3
+
+Log::Dispatch was not in CORE (or so I think)
+
+Module::Load was first released with perl v5.9.4
+
+Moose was not in CORE (or so I think)
+
+Moose::Exporter was not in CORE (or so I think)
+
+Moose::Role was not in CORE (or so I think)
+
+Moose::Util::TypeConstraints was not in CORE (or so I think)
+
+MooseX::Aliases was not in CORE (or so I think)
+
+MooseX::InsideOut was not in CORE (or so I think)
+
+MooseX::Params::Validate was not in CORE (or so I think)
+
+MooseX::Role::WithOverloading was not in CORE (or so I think)
+
+MooseX::Singleton was not in CORE (or so I think)
+
+MooseX::Types was not in CORE (or so I think)
+
+MooseX::Types::DateTimeX was not in CORE (or so I think)
+
+MooseX::Types::Locale::Country was not in CORE (or so I think)
+
+MooseX::Types::Moose was not in CORE (or so I think)
+
+MooseX::Types::Structured was not in CORE (or so I think)
+
+namespace::autoclean was not in CORE (or so I think)
+
+namespace::clean was not in CORE (or so I think)
+
+overload was first released with perl 5.002
+
+Readonly was not in CORE (or so I think)
+
+strict was first released with perl 5
+
+Time::HiRes was first released with perl v5.7.3
+
+version was first released with perl v5.9.0
+
+warnings was first released with perl v5.6.0

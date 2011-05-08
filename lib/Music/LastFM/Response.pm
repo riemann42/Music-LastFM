@@ -11,6 +11,7 @@ use Moose::Util::TypeConstraints;
 use Module::Load;
 use JSON;
 use Readonly;
+use namespace::autoclean;
 
 
 use Music::LastFM::Meta::EasyAcc;
@@ -206,5 +207,6 @@ with 'Music::LastFM::Role::Logger';
     }
 }
 
+#__PACKAGE__->meta->make_immutable();
 1;
 

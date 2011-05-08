@@ -9,6 +9,7 @@ use Moose;
 use Music::LastFM::Meta::EasyAcc;
 use MooseX::Types::Moose qw(Str Bool ArrayRef HashRef);
 use Music::LastFM::Types::LastFM qw(Metas);
+use namespace::autoclean;
 
 has 'name' => ( is => 'rw', isa => Str, required => 1 );
 

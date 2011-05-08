@@ -3,6 +3,7 @@ use warnings; use strict; use Carp;
 use version; our $VERSION = qv('0.0.3');
 use MooseX::Singleton;
 use Music::LastFM::Types;
+use namespace::autoclean;
 
 has logger => (
     is => "ro",
@@ -16,4 +17,5 @@ has logger => (
     }
 );
 
+__PACKAGE__->meta->make_immutable;
 1;

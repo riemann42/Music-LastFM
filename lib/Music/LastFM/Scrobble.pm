@@ -15,6 +15,7 @@ use MooseX::Params::Validate;
 use Data::Dumper;
 use Music::LastFM::Meta::EasyAcc;
 use Moose::Util::TypeConstraints;
+use namespace::autoclean;
 
 with 'Music::LastFM::Role::Logger';
 

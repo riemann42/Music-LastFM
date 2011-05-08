@@ -4,6 +4,7 @@ use Module::Build;
 
 my $builder = Module::Build->new(
     module_name         => 'Music::LastFM',
+    create_makefile_pl => 'traditional',
     license             => 'perl',
     dist_author         => 'Edward Allen <ealleniii_at_cpan_dot_org>',
     dist_version_from   => 'lib/Music/LastFM.pm',

@@ -7,6 +7,8 @@ use Music::LastFM::Meta::EasyAcc;
 use Music::LastFM::Types qw(HashRef Bool Str);
 use Config::Std;
 
+use namespace::autoclean;
+
 
 has _option_ref => (
     is        => 'ro',
@@ -95,4 +97,5 @@ sub has_option {
 }
 
 
+__PACKAGE__->meta->make_immutable;
 1;
