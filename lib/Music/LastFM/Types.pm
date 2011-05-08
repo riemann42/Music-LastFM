@@ -10,6 +10,13 @@ __PACKAGE__->provide_types_from(qw/
     Music::LastFM::Types::Method
     Music::LastFM::Types::Country
 /);
+
+use Moose::Util::TypeConstraints;
+
+sub new_datetime {
+    my $class = shift;
+    return find_type_constraint(DateTime)->coerce( @_ );
+}
     
 1;
 

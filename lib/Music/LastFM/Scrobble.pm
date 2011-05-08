@@ -5,19 +5,20 @@ use Carp;
 use version; our $VERSION = qv('0.0.3');
 use Moose;
 use MooseX::Singleton;
+use MooseX::Params::Validate;
+use Data::Dumper;
+use Music::LastFM::Meta::EasyAcc;
+#use Moose::Util::TypeConstraints;
+use namespace::autoclean;
+use English '-no_match_vars';
+
+with 'Music::LastFM::Role::Logger';
 use Music::LastFM::Types qw(
     ArrayRef    Track       Tracks 
     DateTime    Int         Str 
     HashRef     Dict        Bool
     CurrentPlay
 );
-use MooseX::Params::Validate;
-use Data::Dumper;
-use Music::LastFM::Meta::EasyAcc;
-use Moose::Util::TypeConstraints;
-use namespace::autoclean;
-
-with 'Music::LastFM::Role::Logger';
 
 has queue => ( is => 'ro', );
 
@@ -35,6 +36,24 @@ has 'current' => (
     clearer   => '_clear_current',
 );
 
+
+has 'waituntil' => (
+    is        => 'ro',
+    isa       => Int,
+);
+
+{
+    my ($x,$y) = (0,0);
+    sub next_fibonacci {
+           (! $x ) ? ( $x = 1 ) 
+        :  (! $y ) ? ( $y = 1 ) 
+        :            (($x,$y) = ($y, $x+$y));
+        return $y || $x;
+    }
+    sub reset_fibonacci {
+        ($x,$y) = (0,0);
+    }
+}
 
 sub _set_fields {
     my $self = shift;
@@ -143,15 +162,20 @@ sub add_track {
 
 sub process_scrobble_queue {
     my $self  = shift;
+    if ($self->has_waituntil) {
+        return unless (time > $self->has_waituntil);
+    }
     my $queue = $self->queue->next_tracks(50);
     my %req;
     my $batch_num = 0;
+
     for my $track ( @{$queue} ) {
         while ( my ( $field, $value ) = each %{$track} ) {
             $req{ $field . '[' . $batch_num . ']' } = $value;
         }
         $batch_num++;
     }
+
     if ($batch_num) {
         my $response;
         eval {
@@ -160,10 +184,21 @@ sub process_scrobble_queue {
                 options => \%req
             );
         };
-        # TODO : Add more sanity checks to make sure scrobbles went a-ok.
-        if ($@) { $self->warning($@) }
+        if ($EVAL_ERROR) { 
+            $self->warning($EVAL_ERROR); 
+            if (    ( Music::LastFM::Exception::APIError->caught($EVAL_ERROR))
+                 && ( $EVAL_ERROR->can_retry ) ) {
+                 my $wait_time = next_fibonacci();
+                 $self->warning("Error is retryable. Will try again after $wait_time seconds");
+                 $self->_set_waituntil(time + $wait_time);
+            }
+            else {
+                $EVAL_ERROR_>rethrow();
+            }
+        }
         $self->debug( Dumper( $response->data ) );
         if ( $response->is_success ) {
+            reset_fibonacci();
             $self->queue->remove_tracks($batch_num);
         }
     }
@@ -217,7 +252,7 @@ sub monitor_playback {
         }
     );
     
-    my $now = find_type_constraint(DateTime)->coerce( time );
+    my $now = Music::LastFM::Types->new_datetime(time); 
 
     if (($options{track}) && (! $self->has_current )) {
         $self->_reset_current($options{track}, $now);
