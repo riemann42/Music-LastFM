@@ -1,0 +1,132 @@
+---
+abstract: "[One line description of module's purpose here]"
+author:
+  - 'Edward Allen <ealleniii_at_cpan_dot_org>'
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3607'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Music-LastFM
+provides:
+  Music::LastFM:
+    file: lib/Music/LastFM.pm
+    version: v0.0.3
+  Music::LastFM::Agent:
+    file: lib/Music/LastFM/Agent.pm
+    version: v0.0.3
+  Music::LastFM::Config:
+    file: lib/Music/LastFM/Config.pm
+    version: v0.0.3
+  Music::LastFM::Exception:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Exception::APIError:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Exception::AuthenticationFailure:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Exception::LWPError:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Exception::ParseError:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Exception::ResponseError:
+    file: lib/Music/LastFM/Exception.pm
+  Music::LastFM::Logger:
+    file: lib/Music/LastFM/Logger.pm
+    version: v0.0.3
+  Music::LastFM::Meta::EasyAcc:
+    file: lib/Music/LastFM/Meta/EasyAcc.pm
+    version: 0.03
+  Music::LastFM::Meta::EasyAcc::Role::Attribute:
+    file: lib/Music/LastFM/Meta/EasyAcc/Role/Attribute.pm
+  Music::LastFM::Meta::LastFM:
+    file: lib/Music/LastFM/Meta/LastFM.pm
+    version: 0.03
+  Music::LastFM::Meta::LastFM::Role::Attribute:
+    file: lib/Music/LastFM/Meta/LastFM/Role/Attribute.pm
+  Music::LastFM::Meta::LastFM::Role::Class:
+    file: lib/Music/LastFM/Meta/LastFM/Role/Class.pm
+  Music::LastFM::Meta::LastFM::Role::Object:
+    file: lib/Music/LastFM/Meta/LastFM/Role/Object.pm
+  Music::LastFM::Method:
+    file: lib/Music/LastFM/Method.pm
+    version: v0.0.3
+  Music::LastFM::Object:
+    file: lib/Music/LastFM/Object.pm
+    version: v0.0.3
+  Music::LastFM::Object::Album:
+    file: lib/Music/LastFM/Object/Album.pm
+    version: v0.0.3
+  Music::LastFM::Object::Artist:
+    file: lib/Music/LastFM/Object/Artist.pm
+    version: v0.0.3
+  Music::LastFM::Object::Event:
+    file: lib/Music/LastFM/Object/Event.pm
+    version: v0.0.3
+  Music::LastFM::Object::Tag:
+    file: lib/Music/LastFM/Object/Tag.pm
+    version: v0.0.3
+  Music::LastFM::Object::Track:
+    file: lib/Music/LastFM/Object/Track.pm
+    version: v0.0.3
+  Music::LastFM::Object::User:
+    file: lib/Music/LastFM/Object/User.pm
+    version: v0.0.3
+  Music::LastFM::Object::Venue:
+    file: lib/Music/LastFM/Object/Venue.pm
+    version: v0.0.3
+  Music::LastFM::Response:
+    file: lib/Music/LastFM/Response.pm
+    version: v0.0.3
+  Music::LastFM::Role::Logger:
+    file: lib/Music/LastFM/Role/Logger.pm
+    version: v0.0.3
+  Music::LastFM::Role::Overload:
+    file: lib/Music/LastFM/Role/Overload.pm
+    version: v0.0.3
+  Music::LastFM::Scrobble:
+    file: lib/Music/LastFM/Scrobble.pm
+    version: v0.0.3
+  Music::LastFM::ScrobbleQueue:
+    file: lib/Music/LastFM/ScrobbleQueue.pm
+  Music::LastFM::SessionCache:
+    file: lib/Music/LastFM/SessionCache.pm
+  Music::LastFM::Types:
+    file: lib/Music/LastFM/Types.pm
+  Music::LastFM::Types::Country:
+    file: lib/Music/LastFM/Types/Country.pm
+  Music::LastFM::Types::LastFM:
+    file: lib/Music/LastFM/Types/LastFM.pm
+  Music::LastFM::Types::Method:
+    file: lib/Music/LastFM/Types/Method.pm
+  Music::LastFM::Types::Objects::Country:
+    file: lib/Music/LastFM/Types/Objects/Country.pm
+requires:
+  Cache::FileCache: 0
+  Config::Std: 0
+  Data::Util: 0
+  File::Queue: 0
+  JSON: 0
+  Log::Dispatch: 0
+  Module::Load: 0
+  Moose: 2
+  MooseX::Aliases: 0
+  MooseX::InsideOut: 0
+  MooseX::Params::Validate: 0
+  MooseX::Role::WithOverloading: 0
+  MooseX::Singleton: 0
+  MooseX::Types: 0
+  MooseX::Types::DateTimeX: 0
+  MooseX::Types::LWP::UserAgent: 0
+  MooseX::Types::Locale::Country: 0
+  MooseX::Types::Structured: 0
+  MooseX::Types::URI: 0
+  MooseX::Types::UUID: 0
+  Readonly: 0
+  Test::More: 0
+  namespace::autoclean: 0
+  version: 0
+resources:
+  license: http://dev.perl.org/licenses/
+version: v0.0.3

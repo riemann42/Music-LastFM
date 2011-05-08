@@ -15,7 +15,7 @@ sub sleep_print {
     }
 }
 
-my $lfm = Music::LastFM->new(config_filename => 't/options.conf');
+my $lfm = Music::LastFM->new(config_filename => 'tmp/options.conf');
 
 
 my $username = 'mflm-test';

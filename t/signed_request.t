@@ -8,7 +8,7 @@ BEGIN {
     use_ok( 'Music::LastFM' );
 }
 
-my $lfm = Music::LastFM->new(config_filename => 't/options.conf');
+my $lfm = Music::LastFM->new(config_filename => 'tmp/options.conf');
 
 my $username = $lfm->config->get_option('username');
 

@@ -9,7 +9,7 @@ use English qw( -no_match_vars );
 use Music::LastFM;
 
 my $username = 'riemann42';
-my $lfm = Music::LastFM->new( config_filename => 't/options.conf' );
+my $lfm = Music::LastFM->new( config_filename => 'tmp/options.conf' );
 
 my $user = $lfm->new_user(name => $username);  # Create a new empty user object
 
