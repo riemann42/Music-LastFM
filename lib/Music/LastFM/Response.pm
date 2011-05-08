@@ -191,7 +191,7 @@ with 'Music::LastFM::Role::Logger';
 
             $return_value->{$node_key} =
                 # Test  Value
-                  $node_key = 'nowplaying'   ?       # quick hack, TODO fix
+                  $node_key eq 'nowplaying'   ?       # quick hack, TODO fix
                         $node_value
                 : $is_array && $is_expected  ?
                         $self->_make_array_of_objects($node_key,$node_value)
