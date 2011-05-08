@@ -1,21 +1,8 @@
-package Music::LastFM::Role::Overload;
-use warnings; use strict; use Carp;
-use version; our $VERSION = qv('0.0.3');
-use MooseX::Role::WithOverloading;
-
-use overload '""'      => \&stringify, fallback => 1;
-
-requires(qw(name));
-sub stringify { shift->name() }
-
-no Moose;
-1;
-
 __END__
 
 =head1 NAME
 
-Music::LastFM::Role::Overload - [One line description of module's purpose here]
+Music::LastFM::Meta::LastFM::Role::LastFM - [One line description of module's purpose here]
 
 =head1 VERSION
 
