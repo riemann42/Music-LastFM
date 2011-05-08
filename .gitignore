@@ -17,3 +17,4 @@ Debian_CPANTS.txt*
 lib.old
 t/test_log
 t/config.t
+t/options.conf
