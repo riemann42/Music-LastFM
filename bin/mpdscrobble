@@ -20,111 +20,52 @@ my $client = Music::Client::MPD->new(
     }
 );
 
-my $current_status;
-my $running_time;
-my $last_running_time;
-my $last_update_time;
-my $last_played_time;
 my $current_track;
-
-sub reset_status {
-    print STDERR "\nReset status\n";
-    $running_time      = 0;
-    $last_running_time = 0;
-    $last_update_time  = 0;
-    $last_played_time  = time;
-    $current_track     = undef;
-}
+my $current_status_ref;
 
 sub update_info {
-    my $new_status = $client->get_info();
+    my $status_ref = $client->get_info();
     my $time       = time;
-    if ( $new_status->{state} eq 'play' ) {
-        ( $new_status->{so_far}, $new_status->{song_duration} ) =
-            $new_status->{'time'}
-            ? ( split( /:/, $new_status->{'time'} ) )
+    my %options = ( play_status => $status_ref->{state} );
+
+    if ( !( $status_ref->{state} eq 'stop') ) {
+        ( $status_ref->{so_far}, $status_ref->{song_duration} ) =
+            $status_ref->{'time'}
+            ? ( split( /:/, $status_ref->{'time'} ) )
             : ( 0, 0 );
 
-        if ((defined $current_status) && ( !$new_status->{Id} == $current_status->{Id}
-        )) {
-            change_song();
-        }
-        if ( !defined $current_track ) {
+        if (   ( !defined $current_track ) 
+            || (!( $current_track->id eq $status_ref->{Id}))) { 
+
             $current_track = $lfm->new_track(
-                name   => $new_status->{Title},
-                artist => $new_status->{Artist},
-
-                #album  => {
-                #    artist => $new_status->{Artist},
-                #    name   => $new_status->{Album}
-                #},
-                last_played => $last_played_time
+                name   => $status_ref->{Title},
+                artist => $status_ref->{Artist},
+                id     => $status_ref->{Id},
+                duration => $status_ref->{song_duration},
             );
-            print STDERR "\n", $current_track->last_played->epoch, "\n";
-            $lfm->scrobble->now_playing( track => $current_track );
         }
-
-        if ( !defined $last_running_time ) {
-            $last_running_time = $new_status->{so_far};
-        }
-
-        my $run_since_update = ( $new_status->{so_far} - $running_time );
-        my $time_since_update =
-            ( $time - $last_update_time ) + 5;    # adding 1 for rounding
-        if (   ( $run_since_update > 0 )
-            && ( $run_since_update <= $time_since_update ) ) {
-            $running_time += $run_since_update;
-        }
-        elsif (
-            ( $run_since_update < -240 )
-            || ( $run_since_update
-                < ( -1 * ( $new_status->{song_duration} / 2 ) ) )
-            ) {
-
-            #long skip back
-            change_song();
-        }
-        $last_running_time = $new_status->{so_far};
-        $last_update_time  = $time;
+        $options{track} = $current_track;
+        $options{current_time} = $status_ref->{so_far};
     }
-    elsif (( $new_status->{state} eq 'stop' )
-        && ($running_time) ) {
-        change_song();
+    else {
+        $current_track = undef;
     }
-    $current_status = $new_status;
-}
-
-sub change_song {
-    my $self = shift;
-    if ($current_track) {
-        if ( $current_status->{song_duration} ) {
-            my $needed_time =
-                min( 240, $current_status->{song_duration} / 2 );
-            if (   ( $running_time >= $needed_time )
-                && ( $current_status->{song_duration} >= 30 ) ) {
-                scrobble();
-            }
-        }
-    }
-    reset_status();
-}
-
-sub scrobble {
-    print "Will Scrobble: ", Dumper($current_status);
-    $lfm->scrobble->add_track( track => $current_track );
+    $lfm->scrobble->monitor_playback(%options);
+    $current_status_ref = $status_ref;
 }
 
 sub monitor_mpd {
     while (1) {
         update_info();
-        print STDERR $current_status->{state}, " ",
-            $current_status->{time}, " ", $running_time, " ",
-            $current_status->{song_duration}, "\r";
+        print STDERR $current_status_ref->{state}, " ",
+            exists$current_status_ref->{'time'} ?
+            $current_status_ref->{'time'} : "" , " ",
+            exists $current_status_ref->{song_duration} ?
+            $current_status_ref->{song_duration} : "", "\r";
+
         sleep 1;
-        $lfm->scrobble->process_scrobble_queue();
     }
 }
 
-reset_status();
 monitor_mpd();
 

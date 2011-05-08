@@ -134,6 +134,9 @@ sub add_track {
         track     => $options{track},
         timestamp => $options{timestamp} || $options{track}->last_played
     );
+    use Data::Dumper;
+    $self->debug("added track: ", Dumper($req));
+    $self->warning("scrobbling: ", $options{track}->name); 
     $self->queue->add_tracks($req);
 }
 
@@ -149,10 +152,15 @@ sub process_scrobble_queue {
         $batch_num++;
     }
     if ($batch_num) {
-        my ( $response, @more ) = $self->agent->query(
-            method  => 'track.scrobble',
-            options => \%req
-        );
+        my $response;
+        eval {
+            $response = $self->agent->query(
+                method  => 'track.scrobble',
+                options => \%req
+            );
+        };
+        # TODO : Add more sanity checks to make sure scrobbles went a-ok.
+        if ($@) { $self->warning($@) }
         $self->debug( Dumper( $response->data ) );
         if ( $response->is_success ) {
             $self->queue->remove_tracks($batch_num);
@@ -168,23 +176,25 @@ sub _reset_current {
         running_time => 0,
         last_update => $now,
         play_start => $now,
+        current_time => 0,
         required_time => (($track->has_duration) && ($track->duration > 30)) ?
-                                ($track->duration / 2) : 240
+                                int($track->duration / 2) : 240
     });
+    $self->warning("now playing: ", $track->name); 
+    $self->now_playing( track => $track );
 }
 
 sub _compare_to_current {
     my $self = shift;
     my $track = shift;
-    return
-          (! $self->has_current )                                  
-              ? 0
-        : ($track->has_id && $self->current->track->has_id)        
-              ? ($self->current->track->id cmp $track->id)
-        :       (   ($self->current->track->artist->name cmp
-                     $track->artist->name)
-                 && ($self->current->track->name cmp
-                     $track->name)); 
+    return 0 if (! $self->has_current);
+    if ($track->has_id && $self->current->{track}->has_id) {
+        return ($self->current->{track}->id eq $track->id)
+    }
+    else {
+        return (    ($self->current->{track}->artist->name eq $track->artist->name)
+                 && ($self->current->{track}->name eq $track->name)); 
+    }
 }
 
 
@@ -202,6 +212,7 @@ sub monitor_playback {
         },
         current_time => {
             isa     => Int,
+            optional => 1,
         }
     );
     
@@ -210,17 +221,19 @@ sub monitor_playback {
     if (($options{track}) && (! $self->has_current )) {
         $self->_reset_current($options{track}, $now);
     }
-    if (   (! $options{play_status} eq 'stop') 
+    if (   (! ($options{play_status} eq 'stop')) 
         && ($self->_compare_to_current($options{track})) ) {
 
-        my $played_time = $options{current_time} - $self->current->{running_time};
+        my $played_time = $options{current_time} - $self->current->{current_time};
+
         my $time_since_update =
-            $now->subtract_datetime_absolute($self->current->{last_update})->in_units('seconds');
+            $now->subtract_datetime_absolute($self->current->{last_update})->delta_seconds;
         my ($skipped_back, $realistic_playtime) =
             (($played_time <= -1 * $self->current->{required_time}),  
-            (($played_time > 0) && ($played_time <= $time_since_update + 1))); 
+            (($played_time > 0) && ($played_time <= $time_since_update + 5))); 
 
         if ($skipped_back) {
+            $self->warning("skipped back by $played_time seconds");
             $self->add_track( track => $self->current->{track},
                               timestamp => $self->current->{play_start});
             $self->_reset_current($options{track}, $now);
@@ -228,6 +241,10 @@ sub monitor_playback {
         elsif ($realistic_playtime) {
             $self->current->{running_time} += $played_time;
         }
+
+        $self->current->{last_update} = $now;
+        $self->current->{current_time} = $options{current_time};
+
     }
     elsif ($self->has_current) {
         if ($self->current->{running_time} > $self->current->{required_time}) {

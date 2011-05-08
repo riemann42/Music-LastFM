@@ -13,7 +13,7 @@ use MooseX::Types -declare => [
 
         )
 ];
-use MooseX::Types::Moose qw(HashRef ArrayRef Str Int);
+use MooseX::Types::Moose qw(HashRef ArrayRef Str Int Num);
 use MooseX::Types::DateTimeX;
 use MooseX::Types::Structured qw(Dict Tuple);
 
@@ -188,7 +188,8 @@ subtype CurrentPlay, as Dict [
     last_update => DateTime,
     play_start  => DateTime,
     running_time    => Int,
-    required_time   => Int,
+    required_time   => Num,
+    current_time    => Int,
 ];
 
 
