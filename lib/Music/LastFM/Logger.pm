@@ -23,7 +23,7 @@ __END__
 
 =head1 NAME
 
-Music::LastFM::Logger - [One line description of module's purpose here]
+Music::LastFM::Logger - Logging Singleton
 
 =head1 VERSION
 
@@ -31,11 +31,12 @@ This document describes Music::LastFM version 0.0.3
 
 =head1 SYNOPSIS
 
-    use Music::LastFM;
+see L<Music::LastFM>;
   
 =head1 DESCRIPTION
 
-Support module for Music::LastFM.
+Support module for Music::LastFM.  This provides the Singleton for logging,
+and is just a wrapper for whatever logging system you want.
 
 =head1 METHODS
 
@@ -43,13 +44,25 @@ Support module for Music::LastFM.
 
 =over
 
-=item new
+=item new ( logger => $logger );
+
+$logger can be any object with info, critical, debug, and warning methods.
 
 =head2 Attributes
 
+=item logger 
+
+Returns the logger object.  Can't be changed after creation.
+
 =head2 Methods
 
+=item  debug info warning critical
+
+Produce an alert.
+
 =head1 DIAGNOSTICS
+
+See L<Music::LastFM>.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -100,3 +113,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

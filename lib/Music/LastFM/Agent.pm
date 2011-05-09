@@ -361,7 +361,77 @@ Support module for Music::LastFM.
 
 =head2 Attributes
 
+=over
+
+=item api_key set_api_key has_api_key REQUIRED
+
+
+
+=item api_secret set_api_secret has_api_secret 
+
+
+
+=item cache set_cache has_cache no_cache cache_set cache_get 
+
+
+
+=item cache_time set_cache_time has_cache_time 
+
+Default: 604800
+
+
+
+=item logger info critical debug warning 
+
+
+
+=item lwp_ua set_lwp_ua has_lwp_ua 
+
+
+
+=item rate_limit set_rate_limit has_rate_limit 
+
+Default: 0.2
+
+
+
+=item session_cache set_session_cache has_session_cache get_sk set_sk 
+
+
+
+=item url set_url has_url 
+
+Default: http://ws.audioscrobbler.com/2.0/
+
+
+
+=item username set_username has_username 
+
+=back
+
 =head2 Methods
+
+=over
+
+=item auth
+
+=item die
+
+=item getsession
+
+=item gettoken
+
+=item has_sk
+
+=item limit_request_rate
+
+=item meta
+
+=item query
+
+=item sign
+
+=back
 
 =head1 DIAGNOSTICS
 
@@ -414,3 +484,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

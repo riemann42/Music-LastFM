@@ -58,7 +58,27 @@ Support module for Music::LastFM.
 
 =head2 Attributes
 
+=item config 
+
+Default: Generated Automatically
+
+
+
+=item logger info critical debug warning 
+
+
+
 =head2 Methods
+
+=item die
+
+=item get
+
+=item has_value
+
+=item meta
+
+=item set
 
 =head1 DIAGNOSTICS
 
@@ -111,3 +131,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

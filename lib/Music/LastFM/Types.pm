@@ -15,7 +15,7 @@ use Moose::Util::TypeConstraints;
 
 sub new_datetime {
     my $class = shift;
-    return find_type_constraint(DateTime)->coerce( @_ );
+    return find_type_constraint('Music::LastFM::Types::LastFM::DateTime')->coerce( @_ );
 }
     
 1;
@@ -50,6 +50,8 @@ Support module for Music::LastFM.
 =head2 Attributes
 
 =head2 Methods
+
+=item new_datetime
 
 =head1 DIAGNOSTICS
 
@@ -102,3 +104,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

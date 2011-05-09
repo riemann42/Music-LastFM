@@ -11,16 +11,15 @@ use MooseX::Types::Moose qw(Str Bool ArrayRef HashRef);
 use Music::LastFM::Types::LastFM qw(Metas);
 use namespace::autoclean;
 
-has 'name' => ( is => 'rw', isa => Str, required => 1 );
+has 'name' => ( is => 'ro', isa => Str, required => 1 );
 
 has 'sign_required' =>
-    ( is => 'rw', isa => Bool, lazy => 1, builder => '_build_sign', );
+    ( is => 'ro', isa => Bool, lazy => 1, builder => '_build_sign', );
 
 sub _build_sign { my $self = shift; return $self->auth_required; }
 
 has 'auth_required' => ( is => 'ro', isa => Bool, default => 0, );
 has 'http_method'       => ( is => 'ro', isa => Str,  default => 'GET', );
-has 'expect'       => ( is => 'ro', isa => Metas, );
 has 'ignore_top'    => ( is => 'ro', isa => Bool, default => 1, );
 has 'agent'        => (
     is        => 'rw',
@@ -48,7 +47,7 @@ __END__
 
 =head1 NAME
 
-Music::LastFM::Method - [One line description of module's purpose here]
+Music::LastFM::Method - Object describing a LastFM api method.
 
 =head1 VERSION
 
@@ -56,11 +55,11 @@ This document describes Music::LastFM version 0.0.3
 
 =head1 SYNOPSIS
 
-    use Music::LastFM;
+See L<Music::LastFM>
   
 =head1 DESCRIPTION
 
-Support module for Music::LastFM.
+Support module for Music::LastFM. You should rarely need to use this.
 
 =head1 METHODS
 
@@ -68,13 +67,69 @@ Support module for Music::LastFM.
 
 =over
 
-=item new
+=item new( name => $name )
+
+Create a new methd.  Only required option is name, which is the name of the
+API Method.
+
+=back
 
 =head2 Attributes
 
+=over
+
+=item agent set_agent has_agent 
+
+A Music::LastFM::Agent object.  Defaults to Music::LastFM::Agent singleton.
+
+=item auth_required has_auth_required 
+
+Default: false
+
+If set, method requires authentication.
+
+=item http_method has_http_method 
+
+Default: GET
+
+HTTP Protocol method to use.
+
+=item ignore_top has_ignore_top 
+
+Default: true
+
+Ignore the top level on the JSON response tree.  Almost always wanted.
+
+
+=item name  has_name 
+
+Required. The name of the method call.
+
+=item options has_options 
+
+A hashref of additional options to pass when using this method.
+
+=item sign_required has_sign_required 
+
+Default: false
+
+This request must be signed if true.
+
+=back
+
 =head2 Methods
 
+=over
+
+=item execute
+
+Execute the method using the agent and return the response data
+
+=back
+
 =head1 DIAGNOSTICS
+
+See L<Music::LastFM>.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -125,3 +180,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

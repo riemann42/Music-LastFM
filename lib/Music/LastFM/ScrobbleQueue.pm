@@ -112,7 +112,33 @@ Support module for Music::LastFM.
 
 =head2 Attributes
 
+=item
+
+
+
+=item
+
+
+
+=item filename REQUIRED
+
+
+
+=item logger info critical debug warning 
+
+
+
 =head2 Methods
+
+=item add_tracks
+
+=item die
+
+=item meta
+
+=item next_tracks
+
+=item remove_tracks
 
 =head1 DIAGNOSTICS
 
@@ -165,3 +191,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

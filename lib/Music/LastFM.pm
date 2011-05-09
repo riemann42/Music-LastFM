@@ -67,8 +67,15 @@ has scrobble => (
                 logger   => $self->_logger,
             )
         );
-
     },
+    handles => [
+        qw(
+            monitor_playback
+            now_playing
+            scrobble_track
+            )
+    ],
+
 );
 
 has log_filename => (
@@ -96,6 +103,7 @@ has cache_time => (
     default => 604_800,         # One week per LastFM API terms.
     documentation => 'Amount of time to cache LastFM responses',
 );
+
 has url => (
     reader        => '_url',
     writer        => '_set__url',
@@ -195,7 +203,7 @@ sub BUILD {
         }
     }
     if ( !$self->_has__api_key ) {
-        Music::LastFM::Exception->throw("Required option api_key not set");
+        Music::LastFM::Exception->throw('Required option api_key not set');
     }
     Music::LastFM::Agent->initialize(
         url           => $self->_url,
@@ -213,33 +221,33 @@ sub BUILD {
     return;
 }
 
+has 'agent' => (
+    is        => 'ro',
+    lazy      => 1,
+    predicate => 'has_agent',
+    default   => sub { Music::LastFM::Agent->instance },
+    handles   => [
+        qw(
+            api_key         set_api_key        has_api_key
+            api_secret      set_api_secret     has_api_secret
+            cache           set_cache          has_cache
+            no_cache
+            cache_time      set_cache_time     has_cache_time
+            lwp_ua          set_lwp_ua         has_lwp_ua
+            rate_limit      set_rate_limit     has_rate_limit
+            session_cache   set_session_cache  has_session_cache
+            url             set_url            has_url
+            username        set_username       has_username
+            query           logger
+            )
+    ],
+);
+
 sub config { return Music::LastFM::Config->instance; }
 
-sub agent { return Music::LastFM::Agent->instance; }
-## no critic (Subroutines::RequireArgUnpacking)
-sub query { return shift->agent->query(@_); }
-## use critic
-
-# This imports the agent attributes into our namespace for convenience.
 do {
     my $package_meta = __PACKAGE__->meta();
     my $agent_meta   = Class::MOP::Class->initialize('Music::LastFM::Agent');
-
-    for my $agent_attribute ( $agent_meta->get_all_attributes() ) {
-        METHOD:
-        for my $attribute_method ( @{ $agent_attribute->associated_methods } )
-        {
-
-            my $attribute_method_name = $attribute_method->name;
-
-            # my $attribute_method_name = $attribute_method->name();
-            next METHOD if ( $attribute_method_name =~ m{ \A _ }xms );
-
-            # TODO : Check for collision with __PACKAGE__ namespace!
-            $package_meta->add_method( $attribute_method_name,
-                sub { shift->agent->$attribute_method_name(@_) } );
-        }
-    }
 
     my $object_base = 'Music::LastFM::Object::';
 

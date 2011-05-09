@@ -44,13 +44,13 @@ has 'waituntil' => (
 
 {
     my ($x,$y) = (0,0);
-    sub next_fibonacci {
+    sub _next_fibonacci {
            (! $x ) ? ( $x = 1 ) 
         :  (! $y ) ? ( $y = 1 ) 
         :            (($x,$y) = ($y, $x+$y));
         return $y || $x;
     }
-    sub reset_fibonacci {
+    sub _reset_fibonacci {
         ($x,$y) = (0,0);
     }
 }
@@ -118,26 +118,7 @@ sub now_playing {
     return $response->is_success;
 }
 
-sub scrobble {
-    my $self = shift;
-    my (%options) = validated_hash(
-        \@_,
-        tracks => {
-            isa    => Tracks,
-            coerce => 1,
-        }
-    );
-    foreach ( @{ $options{tracks} } ) {
-        $self->queue->add_tracks(
-            $self->_set_fields(
-                track     => $_,
-                timestamp => $_->last_played
-            )
-        );
-    }
-}
-
-sub add_track {
+sub scrobble_track {
     my $self = shift;
     my (%options) = validated_hash(
         \@_,
@@ -188,17 +169,17 @@ sub process_scrobble_queue {
             $self->warning($EVAL_ERROR); 
             if (    ( Music::LastFM::Exception::APIError->caught($EVAL_ERROR))
                  && ( $EVAL_ERROR->can_retry ) ) {
-                 my $wait_time = next_fibonacci();
+                 my $wait_time = _next_fibonacci();
                  $self->warning("Error is retryable. Will try again after $wait_time seconds");
                  $self->_set_waituntil(time + $wait_time);
             }
             else {
-                $EVAL_ERROR_>rethrow();
+                $EVAL_ERROR->rethrow();
             }
         }
         $self->debug( Dumper( $response->data ) );
         if ( $response->is_success ) {
-            reset_fibonacci();
+            _reset_fibonacci();
             $self->queue->remove_tracks($batch_num);
         }
     }
@@ -270,7 +251,7 @@ sub monitor_playback {
 
         if ($skipped_back) {
             $self->warning("skipped back by $played_time seconds");
-            $self->add_track( track => $self->current->{track},
+            $self->scrobble_track( track => $self->current->{track},
                               timestamp => $self->current->{play_start});
             $self->_reset_current($options{track}, $now);
         }
@@ -284,7 +265,7 @@ sub monitor_playback {
     }
     elsif ($self->has_current) {
         if ($self->current->{running_time} > $self->current->{required_time}) {
-            $self->add_track( track => $self->current->{track},
+            $self->scrobble_track( track => $self->current->{track},
                               timestamp => $self->current->{play_start});
         }
         if ($options{track}) {
@@ -327,7 +308,41 @@ Support module for Music::LastFM.
 
 =head2 Attributes
 
+=item agent set_agent has_agent 
+
+Default: Generated Automatically
+
+
+
+=item current has_current 
+
+
+
+=item logger info critical debug warning 
+
+
+
+=item queue has_queue 
+
+
+
+=item waituntil has_waituntil 
+
+
+
 =head2 Methods
+
+=item scrobble_track
+
+=item die
+
+=item meta
+
+=item monitor_playback
+
+=item now_playing
+
+=item process_scrobble_queue
 
 =head1 DIAGNOSTICS
 

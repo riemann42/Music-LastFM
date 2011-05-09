@@ -238,7 +238,65 @@ Support module for Music::LastFM.
 
 =head2 Attributes
 
+=item agent has_agent 
+
+Default: Generated Automatically
+
+
+
+=item attr_response has_attr_response 
+
+
+
+=item can_retry has_can_retry 
+
+
+
+=item data has_data 
+
+
+
+=item error has_error 
+
+
+
+=item error_message has_error_message 
+
+
+
+=item expect set_expect has_expect 
+
+Default: Generated Automatically
+
+
+
+=item is_success has_is_success 
+
+
+
+=item json has_json 
+
+
+
+=item logger info critical debug warning 
+
+
+
+=item method has_method REQUIRED
+
+
+
+=item object has_object clear_object 
+
+
+
 =head2 Methods
+
+=item BUILD
+
+=item die
+
+=item meta
 
 =head1 DIAGNOSTICS
 
@@ -291,3 +349,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

@@ -8,7 +8,7 @@ use Data::Dumper;
 use List::Util qw(min);
 
 my $lfm = Music::LastFM->new(
-    config_filename => 't/options.conf',
+    config_filename => 'tmp/options.conf',
     username        => 'riemann42'
 );
 
@@ -50,7 +50,7 @@ sub update_info {
     else {
         $current_track = undef;
     }
-    $lfm->scrobble->monitor_playback(%options);
+    $lfm->monitor_playback(%options);
     $current_status_ref = $status_ref;
 }
 

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Carp;
 
-#use Test::More;
+use Test::More skip_all => 'POD Synapsis test not required';
 
 use English qw( -no_match_vars );
 

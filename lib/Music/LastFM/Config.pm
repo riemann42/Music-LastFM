@@ -28,6 +28,7 @@ has filename => (
     is        => 'ro',
     required  => 1,
     isa       => Str,
+    predicate => '_has_filename',
 );
 
 
@@ -103,7 +104,7 @@ __END__
 
 =head1 NAME
 
-Music::LastFM::Config - [One line description of module's purpose here]
+Music::LastFM::Config - Basic wrapper for Config::Std.
 
 =head1 VERSION
 
@@ -111,11 +112,14 @@ This document describes Music::LastFM version 0.0.3
 
 =head1 SYNOPSIS
 
-    use Music::LastFM;
+See L<Music::LastFM>
   
 =head1 DESCRIPTION
 
-Support module for Music::LastFM.
+Support module for L<Music::LastFM>.  This provides the methods required for a
+config object.  If you wish to create your own config package, just make sure
+it has the methods listed below and use it when creating a L<Music::LastFM>
+object.
 
 =head1 METHODS
 
@@ -123,13 +127,58 @@ Support module for Music::LastFM.
 
 =over
 
-=item new
+=item new( filename => $file )
+
+Create a new object.  Filename is required.
+
+=back
 
 =head2 Attributes
 
+=over
+
+=item filename
+
+The filename of the configuration file. This attribute is required when
+creating a new object, and can't be changed after the fact. 
+
+=back
+
 =head2 Methods
 
+=over
+
+=item get_option($option, $category)
+
+Get an option from config file.  $category is optional, if unset will get it
+from the opening section.
+
+This will die if $category does not exist.
+
+=item has_option($option, $category)
+
+Determine if an $option is set in a config file.  $category is optional, if 
+unset will get it from the opening section.
+
+This will die if $category does not exist.
+
+=item set_option($option, $value, $category)
+
+Set an option.  Like other methods, $category is optional.
+
+This will not create a category, but will die if it does not exist.
+
+=back
+
 =head1 DIAGNOSTICS
+
+=over
+
+=item Attempt to get option from non-existant section: category
+
+This error is returned if you tried to use a bad category.
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -180,3 +229,5 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
+
+

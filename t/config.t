@@ -1,22 +1,14 @@
 use warnings; use strict; use Carp;
-use Test::More;
+use Test::More tests => 1;
 
 use English qw( -no_match_vars ) ;
-use Data::Dumper;
 
+use Music::LastFM;
 
-BEGIN {
-    use_ok( 'Music::LastFM' );
-}
-
-my $lfm = Music::LastFM->new(config_filename => 't/options.conf');
+my $lfm = Music::LastFM->new(config_filename => 'tmp/options.conf');
 my $config = Music::LastFM::Config->instance();
-print STDERR Dumper($config->_option_ref);
 
-
-
-
-
+ok($config->get_option('api_key'), 'Config has api key');
 
 done_testing();
 

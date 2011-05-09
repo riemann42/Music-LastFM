@@ -32,7 +32,7 @@ if ($token_ref) {
 
     SKIP: {
         if (! is_interactive) {
-            skip "Only try a real logon if run interactivly."
+            skip "Only try a real logon if run interactivly.", 4;
         }
         note ("Please visit " . $token_ref->{url});
         note ("I will wait for you.");
