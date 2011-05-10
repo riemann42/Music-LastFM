@@ -5,8 +5,9 @@ use Carp;
 use version; our $VERSION = qv('0.0.3');
 use 5.008_000;  # I don't even want to try making 5.6 work right now.
 use Moose;
-use Music::LastFM::Types qw(Options Method Methods Metas Meta);
+use Music::LastFM::Types qw(Method Methods Metas Meta);
 use MooseX::Types::Moose qw(Bool Str Int HashRef);
+use MooseX::ClassAttribute;
 use Moose::Util::TypeConstraints;
 use Module::Load;
 use JSON;
@@ -28,7 +29,6 @@ with 'Music::LastFM::Role::Logger';
     has is_success    => ( is => 'ro', isa => Bool,);
     has error_message => ( is => 'ro', isa => Str,);
     has error         => ( is => 'ro', isa => Int,);
-    has can_retry     => ( is => 'ro', isa => Bool,);
     has attr_response => ( is => 'ro', isa => HashRef,);
     has agent         => ( is => 'ro',
         weak_ref  => 1,
@@ -53,9 +53,9 @@ with 'Music::LastFM::Role::Logger';
         'venue'  => 'Music::LastFM::Object::Venue',
     );
 
-
-    has expect => (
-        is      => 'rw',
+    class_has expect => (
+        reader  => 'expect',
+        writer  => 'set_expect',
         isa     => Metas,
         coerce  => 1,
         lazy    => 1,
@@ -73,31 +73,39 @@ with 'Music::LastFM::Role::Logger';
 
     sub _data {
         my $self = shift;
-        my $data = decode_json( $self->json );
+        my $json = JSON->new->utf8;
+        my $data = $json->decode( $self->json );  # Croaks on error.
+
         if ( exists $data->{error} ) {
             $self->_set_is_success(0);
             $self->_set_error( $data->{error} );
             $self->_set_error_message( $data->{message} );
-            $self->die( $self->error_message,
+            $self->_die( $self->error_message,
                         'Music::LastFM::Exception::APIError',
                         error_code => $data->{error},
                         response_object => $self,
                         );
-            return;
+            return;  # Should never run
         }
-        elsif ($data) {
-            $self->_set_is_success(1);
-            my $return_value = $self->_parse($data);
-            if ($self->has_object) {
-                # TODO Add sanity check from attr_response here!
-                $self->_merge_data($self->object,$return_value);
-                $self->clear_object;   # Clearing object so we don't repeat this.
-            }
-            return $self->method->ignore_top 
-                ? $return_value->{ ( keys %{$return_value} )[0] }
-                : $return_value;
-        }
-        return;
+
+        # If we made it this far, we are good.
+
+        $self->_set_is_success(1);
+
+        my $return_value = 
+            $self->method->parse_data
+                ?  $self->_parse($data)
+                :  $data;
+
+        if ($self->has_object) {
+            # TODO Add sanity check from attr_response here!
+            $self->_merge_data($self->object,$return_value);
+            $self->clear_object;   # Clearing object so we don't repeat this.
+        };
+
+        return $self->method->ignore_top 
+            ? $return_value->{ ( keys %{$return_value} )[0] }
+            : $return_value;
     }
 
     sub _make_array_of_objects {
@@ -143,7 +151,7 @@ with 'Music::LastFM::Role::Logger';
         }
 
         if (! $data->{name} ) {
-            $self->die( 'Name argument missing',
+            $self->_die( 'Name argument missing',
                         'Music::LastFM::Exception::ParseError',
                         response_object => $self,
                         );
@@ -181,6 +189,9 @@ with 'Music::LastFM::Role::Logger';
         my $return_value  = {};
         if ( $data_ref->{$ATTR_KEY} ) {
             $self->_set_attr_response($data_ref->{$ATTR_KEY});
+            # Note:  often objects have @ATTRIB values as well.  These will
+            # get added to the object, not the outer hash.  In other words, it
+            # all works out this way even though it seems wrong.
         }
         while ( my ( $node_key, $node_value ) = each %{$data_ref} ) {
             next if ( $node_key eq $ATTR_KEY );      # we already took care of this.
@@ -191,9 +202,7 @@ with 'Music::LastFM::Role::Logger';
 
             $return_value->{$node_key} =
                 # Test  Value
-                  $node_key eq 'nowplaying'   ?       # quick hack, TODO fix
-                        $node_value
-                : $is_array && $is_expected  ?
+                  $is_array && $is_expected  ?
                         $self->_make_array_of_objects($node_key,$node_value)
                 : $is_array                  ?
                         $self->_parse_array($node_value)
@@ -222,11 +231,39 @@ This document describes Music::LastFM version 0.0.3
 
 =head1 SYNOPSIS
 
-    use Music::LastFM;
+See L<Music::LastFM>
   
 =head1 DESCRIPTION
 
-Support module for Music::LastFM.
+Support module for Music::LastFM.  This object should only be created by
+L<Music::LastFM::Agent>.  However, there is one class attribute which may be
+set.
+
+=head1 CLASS METHODS
+
+=item expect set_expect 
+
+B<Default>: Generated Automatically
+B<Type>: a HashRef mapping object names to Class::MOP::Meta objects.  Coerced
+from a HashRef of strings.
+
+This is used when creating objects from the JSON response.  If you want to
+inherit and change these, something like this will work:
+
+    Music::LastFM::Response->set_expect( 
+        {
+            'album'  => 'MyApp::Album',
+            'artist' => 'MyApp::Artist',
+            'tag'    => 'MyApp::Tag',
+            'track'  => 'MyApp::Track',
+            'user'   => 'MyApp::User',
+            'event'  => 'MyApp::Event',
+            'venue'  => 'MyApp::Venue',
+        }
+   );
+
+This is likely much easier than inherting this class and changing the internal
+parsing methods.
 
 =head1 METHODS
 
@@ -236,59 +273,62 @@ Support module for Music::LastFM.
 
 =item new
 
+A standard Moose new with no changes.
+
 =head2 Attributes
 
 =item agent has_agent 
 
-Default: Generated Automatically
+B<Default>: Music::LastFM::Agent->instance
+B<Type>: Music::LastFM::Agent
 
-
+A Music::LastFM::Agent object.  Defaults to Music::LastFM::Agent singleton.
 
 =item attr_response has_attr_response 
 
+B<Type>: HashRef
 
-
-=item can_retry has_can_retry 
-
-
+The response for the top level @ATTR values is stored here.  Use for reference
+when browsing multiple pages or other similar activity.
 
 =item data has_data 
 
+This is the parsed response data.  The data type will depend on the method
+used.  Generally it is either an object or an ArrayRef of objects.
 
 
 =item error has_error 
 
+B<Type>: Int
 
+The error number (if any).  See L</DIAGNOSTICS>/
 
 =item error_message has_error_message 
 
+B<Type>: Str
 
-
-=item expect set_expect has_expect 
-
-Default: Generated Automatically
-
-
+The error message (if any).  See L</DIAGNOSTICS>/
 
 =item is_success has_is_success 
 
+B<Type>: Bool
 
+True on success.  See L</DIAGNOSTICS>/
 
 =item json has_json 
 
+B<Type>: Str
 
+The raw json in the response.
 
-=item logger info critical debug warning 
+=item method 
 
-
-
-=item method has_method REQUIRED
-
-
+The method used in the request.
 
 =item object has_object clear_object 
 
-
+Holding location for an object to which response data will be merged.  Is
+cleared after the merger, so should usually be empty.
 
 =head2 Methods
 

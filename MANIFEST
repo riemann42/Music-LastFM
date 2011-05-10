@@ -1,8 +1,6 @@
 bin/mpdscrobble
 Build.PL
 Changes
-ignore.txt
-lib/docit.pl
 lib/Music/LastFM.pm
 lib/Music/LastFM/Agent.pm
 lib/Music/LastFM/Config.pm
@@ -13,6 +11,7 @@ lib/Music/LastFM/Meta/EasyAcc/Role/Attribute.pm
 lib/Music/LastFM/Meta/LastFM.pm
 lib/Music/LastFM/Meta/LastFM/Role/Attribute.pm
 lib/Music/LastFM/Meta/LastFM/Role/Class.pm
+lib/Music/LastFM/Meta/LastFM/Role/LastFM.pm
 lib/Music/LastFM/Meta/LastFM/Role/Object.pm
 lib/Music/LastFM/Method.pm
 lib/Music/LastFM/Object.pm
@@ -24,7 +23,6 @@ lib/Music/LastFM/Object/Track.pm
 lib/Music/LastFM/Object/User.pm
 lib/Music/LastFM/Object/Venue.pm
 lib/Music/LastFM/Response.pm
-lib/Music/LastFM/Response.pm.20110428.171143
 lib/Music/LastFM/Role/Logger.pm
 lib/Music/LastFM/Role/Overload.pm
 lib/Music/LastFM/Scrobble.pm
@@ -35,13 +33,10 @@ lib/Music/LastFM/Types/Country.pm
 lib/Music/LastFM/Types/LastFM.pm
 lib/Music/LastFM/Types/Method.pm
 lib/Music/LastFM/Types/Objects/Country.pm
-lib/temp
-lib/Test.pl
-lib/test.pm
 MANIFEST
+META.yml
 README
 t/00.load.t
-t/01-interface.t
 t/90-perlcritic.t
 t/97-pod.t
 t/98-pod-coverage.t
@@ -51,4 +46,4 @@ t/config.t
 t/general_test.t
 t/signed_request.t
 Makefile.PL
-META.yml
+LICENSE

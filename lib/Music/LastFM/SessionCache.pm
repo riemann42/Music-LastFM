@@ -1,7 +1,7 @@
 package Music::LastFM::SessionCache;
 
 use Moose;
-use Music::LastFM::Types qw(Str Options);
+use Music::LastFM::Types qw(Str);
 with 'Music::LastFM::Role::Logger';
 
 has config => (

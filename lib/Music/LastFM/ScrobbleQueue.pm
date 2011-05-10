@@ -34,7 +34,7 @@ has filename => (
 
 sub _file_object_builder {
     my $self = shift;
-    $self->warning("Creating queue object of file" . $self->filename);
+    $self->_warning("Creating queue object of file" . $self->filename);
     return  File::Queue->new(File => $self->filename);
 }
 

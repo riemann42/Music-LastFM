@@ -21,6 +21,7 @@ sub _build_sign { my $self = shift; return $self->auth_required; }
 has 'auth_required' => ( is => 'ro', isa => Bool, default => 0, );
 has 'http_method'       => ( is => 'ro', isa => Str,  default => 'GET', );
 has 'ignore_top'    => ( is => 'ro', isa => Bool, default => 1, );
+has 'parse_data'    => ( is => 'ro', isa => Bool, default => 1, );
 has 'agent'        => (
     is        => 'rw',
     weak_ref  => 1,
@@ -60,6 +61,11 @@ See L<Music::LastFM>
 =head1 DESCRIPTION
 
 Support module for Music::LastFM. You should rarely need to use this.
+Most of the time a string can be passed and the magic of Moose will coerce
+it into an object of this type.  
+
+Please see L<Music::LastFM::Types::Method> to see all the magical coercions. 
+This is were the "meat" of this module lies.
 
 =head1 METHODS
 
@@ -80,38 +86,55 @@ API Method.
 
 =item agent set_agent has_agent 
 
+B<Default>: Music::LastFM::Agent->instance
+B<Type>: Music::LastFM::Agent
+
 A Music::LastFM::Agent object.  Defaults to Music::LastFM::Agent singleton.
 
 =item auth_required has_auth_required 
 
-Default: false
+B<Default>: false
+B<Type>: Bool
 
 If set, method requires authentication.
-
 =item http_method has_http_method 
 
-Default: GET
+B<Default>: GET
+B<Type>: GET || POST
 
 HTTP Protocol method to use.
 
 =item ignore_top has_ignore_top 
 
-Default: true
+B<Default>: true
+B<Type>: Bool
 
 Ignore the top level on the JSON response tree.  Almost always wanted.
 
-
 =item name  has_name 
+
+B<Type>: Str
 
 Required. The name of the method call.
 
 =item options has_options 
 
+B<Default>: {}
+B<Type>: Str
+
 A hashref of additional options to pass when using this method.
+
+=item parse_data has_parse_data 
+
+B<Default>: true
+B<Type>: Bool
+
+Parse data and convert to objects
 
 =item sign_required has_sign_required 
 
-Default: false
+B<Default>: false
+B<Type>: Bool
 
 This request must be signed if true.
 

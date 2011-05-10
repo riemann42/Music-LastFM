@@ -3,7 +3,7 @@ use Carp;
 
 use Moose::Util::TypeConstraints;
 use MooseX::Types -declare => [
-    qw( Options     Method      Methods     Meta        Metas
+    qw( Method      Methods     Meta        Metas
         Image       ArtistStats Wiki        Artist      Artists
         Tag         Tags        User        Users       Event
         Events      Album       Albums      Venue       Venues
@@ -16,17 +16,6 @@ use MooseX::Types -declare => [
 use MooseX::Types::Moose qw(HashRef ArrayRef Str Int Num);
 use MooseX::Types::DateTimeX;
 use MooseX::Types::Structured qw(Dict Tuple);
-
-### Config::Options Hash
-use Config::Options;
-class_type Options, { class => 'Config::Options' };
-coerce Options, from HashRef, via {
-    my $opt = Config::Options->new($_);
-    if ( $opt->options('optionfile') ) {
-        $opt->fromfile_perl();
-    }
-    return $opt;
-};
 
 ### Type Coercions for each of the Object types
 for my $attr (qw(Artist Album User Tag Event Venue Track)) {

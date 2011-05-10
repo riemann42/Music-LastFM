@@ -1,7 +1,7 @@
 package Music::LastFM::Scrobble;
 use warnings;
 use strict;
-use Carp;
+use Carp qw(confess);
 use version; our $VERSION = qv('0.0.3');
 use Moose;
 use MooseX::Singleton;
@@ -114,7 +114,7 @@ sub now_playing {
         method  => 'track.updateNowPlaying',
         options => $req
     );
-    $self->debug( Dumper( $response->data ) );
+    $self->_debug( Dumper( $response->data ) );
     return $response->is_success;
 }
 
@@ -136,8 +136,8 @@ sub scrobble_track {
         timestamp => $options{timestamp} || $options{track}->last_played
     );
     use Data::Dumper;
-    $self->debug("added track: ", Dumper($req));
-    $self->warning("scrobbling: ", $options{track}->name); 
+    $self->_debug("added track: ", Dumper($req));
+    $self->_warning("scrobbling: ", $options{track}->name); 
     $self->queue->add_tracks($req);
 }
 
@@ -166,18 +166,18 @@ sub process_scrobble_queue {
             );
         };
         if ($EVAL_ERROR) { 
-            $self->warning($EVAL_ERROR); 
+            $self->_warning($EVAL_ERROR); 
             if (    ( Music::LastFM::Exception::APIError->caught($EVAL_ERROR))
                  && ( $EVAL_ERROR->can_retry ) ) {
                  my $wait_time = _next_fibonacci();
-                 $self->warning("Error is retryable. Will try again after $wait_time seconds");
+                 $self->_warning("Error is retryable. Will try again after $wait_time seconds");
                  $self->_set_waituntil(time + $wait_time);
             }
             else {
-                $EVAL_ERROR->rethrow();
+                confess $EVAL_ERROR;
             }
         }
-        $self->debug( Dumper( $response->data ) );
+        $self->_debug( Dumper( $response->data ) );
         if ( $response->is_success ) {
             _reset_fibonacci();
             $self->queue->remove_tracks($batch_num);
@@ -197,7 +197,7 @@ sub _reset_current {
         required_time => (($track->has_duration) && ($track->duration > 30)) ?
                                 int($track->duration / 2) : 240
     });
-    $self->warning("now playing: ", $track->name); 
+    $self->_warning("now playing: ", $track->name); 
     $self->now_playing( track => $track );
 }
 
@@ -250,7 +250,7 @@ sub monitor_playback {
             (($played_time > 0) && ($played_time <= $time_since_update + 5))); 
 
         if ($skipped_back) {
-            $self->warning("skipped back by $played_time seconds");
+            $self->_warning("skipped back by $played_time seconds");
             $self->scrobble_track( track => $self->current->{track},
                               timestamp => $self->current->{play_start});
             $self->_reset_current($options{track}, $now);
@@ -333,8 +333,6 @@ Default: Generated Automatically
 =head2 Methods
 
 =item scrobble_track
-
-=item die
 
 =item meta
 

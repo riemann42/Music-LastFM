@@ -2,6 +2,9 @@
 abstract: "[One line description of module's purpose here]"
 author:
   - 'Edward Allen <ealleniii_at_cpan_dot_org>'
+build_requires:
+  TAP::Harness: 0
+  Test::More: 0
 configure_requires:
   Module::Build: 0.36
 dynamic_config: 0
@@ -104,30 +107,31 @@ provides:
   Music::LastFM::Types::Objects::Country:
     file: lib/Music/LastFM/Types/Objects/Country.pm
 requires:
-  Cache::FileCache: 0
+  Cache::Cache: 0
   Config::Std: 0
-  Data::Util: 0
-  File::Queue: 0
-  JSON: 0
+  Data::Util: 0.57
+  Exception::Class: 0
+  File::Queue: 1.01
+  JSON: 2
+  LWP: 0
   Log::Dispatch: 0
   Module::Load: 0
   Moose: 2
-  MooseX::Aliases: 0
-  MooseX::InsideOut: 0
-  MooseX::Params::Validate: 0
-  MooseX::Role::WithOverloading: 0
-  MooseX::Singleton: 0
-  MooseX::Types: 0
-  MooseX::Types::DateTimeX: 0
-  MooseX::Types::LWP::UserAgent: 0
-  MooseX::Types::Locale::Country: 0
-  MooseX::Types::Structured: 0
-  MooseX::Types::URI: 0
-  MooseX::Types::UUID: 0
-  Readonly: 0
-  Test::More: 0
+  MooseX::Aliases: 0.09
+  MooseX::InsideOut: 0.106
+  MooseX::Params::Validate: 0.16
+  MooseX::Role::WithOverloading: 0.09
+  MooseX::Singleton: 0.26
+  MooseX::Types: 0.25
+  MooseX::Types::DateTimeX: 0.06
+  MooseX::Types::LWP::UserAgent: 0.02
+  MooseX::Types::Locale::Country: 0.04
+  MooseX::Types::Structured: 0.23
+  MooseX::Types::URI: 0.02
+  MooseX::Types::UUID: 0.02
+  Readonly: 1.03
   namespace::autoclean: 0
-  version: 0
+  version: 0.77
 resources:
   license: http://dev.perl.org/licenses/
 version: v0.0.3

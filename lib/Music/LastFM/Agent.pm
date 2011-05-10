@@ -8,7 +8,7 @@ use MooseX::Singleton;
 use Music::LastFM::Meta::EasyAcc;
 
 use Music::LastFM::Types
-    qw(UserAgent HashRef ArrayRef Str Int Options Method Meta Metas Cache Num);
+    qw(UserAgent HashRef ArrayRef Str Int Method Meta Metas Cache Num);
 use MooseX::Params::Validate;
 use Digest::MD5;
 use Time::HiRes;
@@ -96,19 +96,19 @@ sub auth {
     my $params   = shift;
     my $username = shift || ( $self->has_username ? $self->username : undef );
     if ( !$username ) {
-        $self->die( q{A username must be provided for authenticated queries. }
+        $self->_die( q{A username must be provided for authenticated queries. }
                 . q{You can set the username attribute, or pass it as an option}
                 . q{to the query paramater} );
     }
     if ( !$self->has_session_cache ) {
-        $self->die(
+        $self->_die(
             q{Can't authorize a request without a session_cache object});
     }
     if ( $self->get_sk($username) ) {
         $params->{sk} = $self->get_sk($username);
     }
     else {
-        $self->die(
+        $self->_die(
             qq{No session key stored for $username.\n}
                 . qq{Please make sure you have run gettoken AND getsession for this user.\n}
                 . q{See AUTHENTICATION in the Music::LastFM POD.},
@@ -128,7 +128,7 @@ sub sign {
     my $self       = shift;
     my $params_ref = shift;
     if ( !$self->has_api_secret ) {
-        $self->die(
+        $self->_die(
             q{api_secret needs to be provided to sign requests such as this one.}
         );
     }
@@ -156,7 +156,7 @@ sub gettoken {
         };
     }
     else {
-        $self->die(
+        $self->_die(
             'Failed to get an authentication token for unknown reason');
     }
     return;
@@ -175,7 +175,7 @@ sub getsession {
         my ( $username, $session_key ) =
             ( $resp->data->{name}, $resp->data->{key} );
         if ( !$self->has_session_cache ) {
-            $self->warning(
+            $self->_warning(
                 qq{Can't save this session, because no session cache defined.\n}
                     . q{Please re-read the Music::LastFM Documentation"} );
         }
@@ -183,7 +183,7 @@ sub getsession {
         return $resp->data;
     }
     else {
-        $self->die('Failed to get session key for unknown reason');
+        $self->_die('Failed to get session key for unknown reason');
     }
     return;
 }
@@ -236,31 +236,38 @@ sub _build_request {
     my $lwp_request;
     if ( $lastfm_method->http_method eq 'GET' ) {
         $lwp_request = HTTP::Request->new( 'GET', "$url?$query_string" );
-        $self->info(qq{Performing query $url?$query_string});
+        $self->_info(qq{Performing query $url?$query_string});
     }
     else {
         $lwp_request = HTTP::Request->new( 'POST', $url );
         $lwp_request->content_type(
             'application/x-www-form-urlencoded; charset="UTF-8"');
         $lwp_request->content($query_string);
-        $self->info(qq{Performing POST query $url - $query_string});
+        $self->_info(qq{Performing POST query $url - $query_string});
     }
     if ( !$lwp_request ) {
-        $self->die('Could not create an xml query request object');
+        $self->_die('Could not create an xml query request object');
     }
     return $lwp_request;
 }
 
-sub limit_request_rate {
-    my $self = shift;
-    if ( $self->{last_req_time} ) {
-        while ( Time::HiRes::tv_interval( $self->{last_req_time} )
-            < $self->rate_limit ) {
-            Time::HiRes::nanosleep($NANOSLEEP_TIME);
+{
+
+    my $last_req_time;
+
+    sub _limit_request_rate {
+        my $self = shift;
+        if ( $last_req_time ) {
+            while ( Time::HiRes::tv_interval( $last_req_time )
+                < $self->rate_limit ) {
+                Time::HiRes::nanosleep($NANOSLEEP_TIME);
+            }
         }
+        $last_req_time = [ Time::HiRes::gettimeofday() ];
+        return;
     }
-    $self->{last_req_time} = [ Time::HiRes::gettimeofday() ];
-    return;
+
+
 }
 
 sub _perform_query {
@@ -270,13 +277,13 @@ sub _perform_query {
         $self->_build_request( $params_ref->{method}, $query_string );
     my $lwp_resp = $self->lwp_ua->request($lwp_request);
 
-    $self->debug( q{Response to query is: }
+    $self->_debug( q{Response to query is: }
             . $lwp_resp->content
             . q{ and success is }
             . $lwp_resp->status_line );
 
     if ( !$lwp_resp->is_success ) {
-        $self->die(
+        $self->_die(
             'Response to query failed: ' . $lwp_resp->status_line,
             undef,    # Fix me
             $lwp_resp
@@ -297,6 +304,7 @@ sub query {
         options =>    { isa => HashRef, default => $options_default, },
         cache_time => { isa => Int,     default => $self->cache_time },
         object =>     { isa => 'Music::LastFM::Object', optional => 1 },
+        username  =>  { isa => Str, default => $self->username, },
     );
 
     $params{method}->set_agent($self);
@@ -309,14 +317,14 @@ sub query {
     }
     my $content = q{};
     if ( $params{cache_time} ) {
-        $self->debug("Recovered from cache: $query_string");
+        $self->_debug("Recovered from cache: $query_string");
         $content = $self->cache_get( $self->_key($query_string) );
     }
     if ( !$content ) {
-        $self->limit_request_rate();
+        $self->_limit_request_rate();
         $content = $self->_perform_query( \%params, $query_string );
         if ( $params{cache_time} ) {
-            $self->debug("Saving to cache: $query_string");
+            $self->_debug("Saving to cache: $query_string");
             $self->cache_set( $self->_key($query_string),
                 $content, $params{cache_time} );
         }
@@ -357,7 +365,9 @@ Support module for Music::LastFM.
 
 =over
 
-=item new
+=item new(api_key => 1234 api_secret => qq{well kept})
+
+Create a new object.  Can use the following attributes.
 
 =head2 Attributes
 
@@ -365,47 +375,81 @@ Support module for Music::LastFM.
 
 =item api_key set_api_key has_api_key REQUIRED
 
+B<Type>: Str
+
+This must be set when creating the object.  This is the api_key given to you
+by LastFM.  Please don't borrow someone else's key!
 
 
 =item api_secret set_api_secret has_api_secret 
 
-
+This is the super-secret key provided for you by LastFM.  Only use it if you
+need to perform authenticated requests.
 
 =item cache set_cache has_cache no_cache cache_set cache_get 
 
+B<Type>: Cache::Cache
 
+This is actually ducktyped, and requres an object with get and set methods. A
+cache is required by the LastFM T&Cs, so be sure to set this.
 
 =item cache_time set_cache_time has_cache_time 
 
-Default: 604800
+B<Default>: 604800
+B<Type>: Int
 
-
-
-=item logger info critical debug warning 
-
+The number of seconds to cache by default.  Note that this is used when
+calling the set method on the cache, so it may be ignored if the caching
+object chooses to.  The default is the recomended default from LastFM.
 
 
 =item lwp_ua set_lwp_ua has_lwp_ua 
 
+B<Default>: LWP::UserAgent->new();
+B<Type>: LWP::UserAgent
 
+This is the user agent.  If you want to create your own, or want to do
+somthing tricky, set this.
 
 =item rate_limit set_rate_limit has_rate_limit 
 
-Default: 0.2
+B<Default>: 0.2
+B<Type>: None
 
 
+LastFM says you can only make 5 request per second aggregated over a 5 minute
+period.  This makes sure that happens.
+
+Now, in theory a much more complicated system, which allowed, say, 1500
+requests as fast as you want and then shut you down until 5 minutes passed,
+could be used.  I think, however, this is a little nicer and more in keeping
+with the spirit of the rules.  If you know you will never ever ever make that
+many requests in 5 minutes, set this to 0.  However, i have created programs
+that would do this unintentionally (a severe bug).  This saves your api key
+from getting disabled.
 
 =item session_cache set_session_cache has_session_cache get_sk set_sk 
 
+B<Type>: Ducktyped.  Requries get and set methods.
 
+This is used in authentication to determine how to store the session keys.
+Storing the session key is important, because it is good for life.  So also
+keeping it secure is important.  The default for L<Music::LastFM> is B<NOT>
+secure, so don't use it for serious work.  
 
 =item url set_url has_url 
 
-Default: http://ws.audioscrobbler.com/2.0/
+B<Default>: http://ws.audioscrobbler.com/2.0/
+B<Type>: URI
 
-
+Set to LastFM API web page.
 
 =item username set_username has_username 
+
+B<Type>: Str
+
+If set, this is the user used for authenticated requests by default.  In a web
+page based system, you almost certainly do not want to set this. 
 
 =back
 
@@ -413,27 +457,40 @@ Default: http://ws.audioscrobbler.com/2.0/
 
 =over
 
-=item auth
+=item auth( $params_ref, $username)
 
-=item die
+Add session key to requests if needed.
 
-=item getsession
+=item getsession( $token )
+
+Grabs a session key and stuffs it in the Session Key Cache if it is available.
+Croaks if it is not, so you will want to wrap this in an eval.
 
 =item gettoken
 
-=item has_sk
+Grabs a new token.  Returns the url to direct users to go to.  Until the user
+goes to this url the getsession method will fail.
 
-=item limit_request_rate
+=item has_sk($username)
 
-=item meta
+Returns true iff the username is in the session cache.
 
-=item query
+=item query( method => $method, options => {}, cache_time => 180, object =>
+$object);
 
-=item sign
+Performs query and returns a L<Music::LastFM::Response> object on success.
+Croaks on failure.  You either want to wrap this, or the function that calls
+this in an eval!  
+
+=item sign($params_ref)
+
+Add a signature to the request string.
 
 =back
 
 =head1 DIAGNOSTICS
+
+Will always croak on error.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use Carp;
 
-use MooseX::Types -declare => [ qw( Method Methods )];
+use MooseX::Types -declare => [qw( Method Methods )];
 
 use MooseX::Types::Moose qw(HashRef ArrayRef Str );
 
@@ -14,21 +14,30 @@ coerce Method, from HashRef, via { 'Music::LastFM::Method'->new( %{$_} ) };
 use Music::LastFM::Method;
 
 our %METHODS = (
-    "album.addTags" =>
-        { name => "album.addTags", auth_required => 1, http_method => 'POST' },
+    "album.addTags" => {
+        name          => "album.addTags",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "album.getBuylinks" => { name => "album.getBuylinks" },
     "album.getInfo"     => { name => "album.getInfo", },
     "album.getShouts"   => { name => "album.getShouts" },
     "album.getTags" =>
         { name => "album.getTags", sign_required => 1, auth_required => 1, },
     "album.getTopTags" => { name => "album.getTopTags", },
-    "album.removeTag" =>
-        { name => "album.removeTag", auth_required => 1, http_method => 'POST' },
+    "album.removeTag"  => {
+        name          => "album.removeTag",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "album.search" => { name => "album.search", },
     "album.share" =>
         { name => "album.share", auth_required => 1, http_method => 'POST' },
-    "artist.addTags" =>
-        { name => "artist.addTags", auth_required => 1, http_method => 'POST' },
+    "artist.addTags" => {
+        name          => "artist.addTags",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "artist.getCorrection" => { name => "artist.getCorrection" },
     "artist.getEvents"     => { name => "artist.getEvents", },
     "artist.getImages"     => { name => "artist.getImages" },
@@ -37,14 +46,20 @@ our %METHODS = (
     "artist.getPodcast"    => { name => "artist.getPodcast" },
     "artist.getShouts"     => { name => "artist.getShouts" },
     "artist.getSimilar"    => { name => "artist.getSimilar", },
-    "artist.getTags"      => { name => "artist.getTags", auth_required => 1,
-    sign_required => 1 },
+    "artist.getTags"       => {
+        name          => "artist.getTags",
+        auth_required => 1,
+        sign_required => 1
+    },
     "artist.getTopAlbums" => { name => "artist.getTopAlbums", },
     "artist.getTopFans"   => { name => "artist.getTopFans", },
     "artist.getTopTags"   => { name => "artist.getTopTags", },
     "artist.getTopTracks" => { name => "artist.getTopTracks", },
-    "artist.removeTag" =>
-        { name => "artist.removeTag", auth_required => 1, http_method => 'POST' },
+    "artist.removeTag"    => {
+        name          => "artist.removeTag",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "artist.search" => { name => "artist.search", },
     "artist.share" =>
         { name => "artist.share", auth_required => 1, http_method => 'POST' },
@@ -53,7 +68,8 @@ our %METHODS = (
     "auth.getMobileSession" =>
         { name => "auth.getMobileSession", sign_required => 1, },
     "auth.getSession" => { name => "auth.getSession", sign_required => 1 },
-    "auth.getToken"   => { name => "auth.getToken",   sign_required => 1, ignore_top => 0},
+    "auth.getToken" =>
+        { name => "auth.getToken", sign_required => 1, ignore_top => 0 },
     "chart.getHypedArtists" => { name => "chart.getHypedArtists", },
     "chart.getHypedTracks"  => { name => "chart.getHypedTracks", },
     "chart.getLovedTracks"  => { name => "chart.getLovedTracks", },
@@ -90,24 +106,42 @@ our %METHODS = (
     "group.getWeeklyArtistChart" => { name => "group.getWeeklyArtistChart", },
     "group.getWeeklyChartList"   => { name => "group.getWeeklyChartList", },
     "group.getWeeklyTrackChart"  => { name => "group.getWeeklyTrackChart", },
-    "library.addAlbum" =>
-        { name => "library.addAlbum", auth_required => 1, http_method => 'POST' },
-    "library.addArtist" =>
-        { name => "library.addArtist", auth_required => 1, http_method => 'POST' },
-    "library.addTrack" =>
-        { name => "library.addTrack", auth_required => 1, http_method => 'POST' },
+    "library.addAlbum"           => {
+        name          => "library.addAlbum",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
+    "library.addArtist" => {
+        name          => "library.addArtist",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
+    "library.addTrack" => {
+        name          => "library.addTrack",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "library.getAlbums"  => { name => "library.getAlbums", },
     "library.getArtists" => {
         name    => "library.getArtists",
         returns => ['Music::LastFM::Artists'],
     },
     "library.getTracks" => { name => "library.getTracks", },
-    "playlist.addTrack" =>
-        { name => "playlist.addTrack", auth_required => 1, http_method => 'POST' },
-    "playlist.create" =>
-        { name => "playlist.create", auth_required => 1, http_method => 'POST' },
-    "playlist.fetch" =>
-        { name => "playlist.fetch", auth_required => 1, http_method => 'POST' },
+    "playlist.addTrack" => {
+        name          => "playlist.addTrack",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
+    "playlist.create" => {
+        name          => "playlist.create",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
+    "playlist.fetch" => {
+        name          => "playlist.fetch",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "radio.getPlaylist" => { name => "radio.getPlaylist", },
     "radio.search"      => { name => "radio.search", },
     "radio.tune" =>
@@ -122,8 +156,11 @@ our %METHODS = (
     "tag.getWeeklyChartList"   => { name => "tag.getWeeklyChartList", },
     "tag.search"               => { name => "tag.search", },
     "tasteometer.compare"      => { name => "tasteometer.compare", },
-    "track.addTags" =>
-        { name => "track.addTags", auth_required => 1, http_method => 'POST' },
+    "track.addTags"            => {
+        name          => "track.addTags",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
     "track.ban" =>
         { name => "track.ban", auth_required => 1, http_method => 'POST' },
     "track.getBuylinks"   => { name => "track.getBuylinks", },
@@ -138,10 +175,17 @@ our %METHODS = (
     "track.getTopTags" => { name => "track.getTopTags", },
     "track.love" =>
         { name => "track.love", auth_required => 1, http_method => 'POST' },
-    "track.removeTag" =>
-        { name => "track.removeTag", auth_required => 1, http_method => 'POST' },
-    "track.scrobble" =>
-        { name => "track.scrobble", auth_required => 1, http_method => 'POST' },
+    "track.removeTag" => {
+        name          => "track.removeTag",
+        auth_required => 1,
+        http_method   => 'POST'
+    },
+    "track.scrobble" => {
+        name          => "track.scrobble",
+        auth_required => 1,
+        http_method   => 'POST',
+        parse_data    => 0
+    },
     "track.search" => { name => "track.search", },
     "track.share" =>
         { name => "track.share", auth_required => 1, http_method => 'POST' },
@@ -150,9 +194,10 @@ our %METHODS = (
     "track.unlove" =>
         { name => "track.unlove", auth_required => 1, http_method => 'POST' },
     "track.updateNowPlaying" => {
-        name         => "track.updateNowPlaying",
+        name          => "track.updateNowPlaying",
         auth_required => 1,
-        http_method       => 'POST'
+        http_method   => 'POST',
+        parse_data    => 0,
     },
     "user.getArtistTracks" => { name => "user.getArtistTracks", },
     "user.getBannedTracks" => { name => "user.getBannedTracks", },
@@ -172,13 +217,13 @@ our %METHODS = (
     "user.getRecommendedEvents"  => { name => "user.getRecommendedEvents", },
     "user.getShouts"             => { name => "user.getShouts", },
     "user.getTopAlbums"          => { name => "user.getTopAlbums", },
-    "user.getTopArtists" => { name => "user.getTopArtists" },
-    "user.getTopTags"    => { name => "user.getTopTags", },
-    "user.getTopTracks"  => { name => "user.getTopTracks", },
-    "user.getWeeklyAlbumChart"  => { name => "user.getWeeklyAlbumChart", },
-    "user.getWeeklyArtistChart" => { name => "user.getWeeklyArtistChart", },
-    "user.getWeeklyChartList"   => { name => "user.getWeeklyChartList", },
-    "user.getWeeklyTrackChart"  => { name => "user.getWeeklyTrackChart", },
+    "user.getTopArtists"         => { name => "user.getTopArtists" },
+    "user.getTopTags"            => { name => "user.getTopTags", },
+    "user.getTopTracks"          => { name => "user.getTopTracks", },
+    "user.getWeeklyAlbumChart"   => { name => "user.getWeeklyAlbumChart", },
+    "user.getWeeklyArtistChart"  => { name => "user.getWeeklyArtistChart", },
+    "user.getWeeklyChartList"    => { name => "user.getWeeklyChartList", },
+    "user.getWeeklyTrackChart"   => { name => "user.getWeeklyTrackChart", },
     "user.shout" =>
         { name => "user.shout", auth_required => 1, http_method => 'POST' },
     "venue.getEvents"     => { name => "venue.getEvents", },
@@ -195,14 +240,13 @@ coerce Method, from Str, via {
 
 subtype Methods, as ArrayRef [Method];
 
-coerce Methods, from ArrayRef[Str], via {
-    [ map { 'Music::LastFM::Method'->new( %{$METHODS{$_}} ) } @{$_} ];
+coerce Methods, from ArrayRef [Str], via {
+    [ map { 'Music::LastFM::Method'->new( %{ $METHODS{$_} } ) } @{$_} ];
 };
 
 coerce Methods, from ArrayRef, via {
     [ map { 'Music::LastFM::Method'->new( %{$_} ) } @{$_} ];
 };
-
 
 1;
 

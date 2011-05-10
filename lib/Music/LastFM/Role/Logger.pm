@@ -5,23 +5,23 @@ use Moose::Role;
 #use Music::LastFM::Types qw(Logger);
 use Music::LastFM::Exception;
 use Music::LastFM::Logger;
+use namespace::autoclean;
 
 has logger => (
-    is => "ro",
 #    isa => Logger,
 #    lazy =>1,
 #    default => sub { Music::LastFM::Logger->instance },
     predicate => '_has_logger',
     handles => {
-        debug => 'debug',
-        info => 'info',
-        warning=> 'warning',
-        critical => 'critical'
+        _debug => 'debug',
+        _info => 'info',
+        _warning=> 'warning',
+        _critical => 'critical'
     }
         
 );
 
-sub die {
+sub _die {
     my $self = shift;
     my ($message,$exception_object,@fields) = @_;
     if ($self->_has_logger) {
@@ -30,7 +30,7 @@ sub die {
     if (! defined $exception_object) {
         $exception_object = 'Music::LastFM::Exception';
     }
-    $exception_object->throw(message => $message,@fields,);
+    $exception_object->throw(message => $message, @fields,);
 }
 
     
