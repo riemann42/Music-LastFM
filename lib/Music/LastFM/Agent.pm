@@ -353,33 +353,43 @@ This document describes Music::LastFM version 0.0.3
 
 =head1 SYNOPSIS
 
-    use Music::LastFM;
+See L<Music::LastFM>.
   
 =head1 DESCRIPTION
 
-Support module for Music::LastFM.
+This is the main module for querying LastFM servers.  The easiest way to
+create this is using L<Music::LastFM>.
+
+This module is a Singleton using MooseX::Singleton.  To initialize the module,
+use Music::LastFM::Agent->initialize(%options).  After this, an instance can
+be acquired using Music::LastFM::Agent->instance.
 
 =head1 METHODS
 
-=head2 Constructor
+=head2 Initiators
 
 =over
 
-=item new(api_key => 1234 api_secret => qq{well kept})
+=item instance() 
 
-Create a new object.  Can use the following attributes.
+Takes no options.  Returns an instance of Music::LastFM::Agent.  Be sure to
+initialize it forst.
+
+=item initialize(api_key => 1234 api_secret => qq{well kept})
+
+Initialize the singleton.  Can use the following attributes.
 
 =head2 Attributes
 
 =over
 
-=item api_key set_api_key has_api_key REQUIRED
+=item api_key set_api_key has_api_key
 
+B<REQUIRED> 
 B<Type>: Str
 
 This must be set when creating the object.  This is the api_key given to you
 by LastFM.  Please don't borrow someone else's key!
-
 
 =item api_secret set_api_secret has_api_secret 
 
@@ -402,7 +412,6 @@ The number of seconds to cache by default.  Note that this is used when
 calling the set method on the cache, so it may be ignored if the caching
 object chooses to.  The default is the recomended default from LastFM.
 
-
 =item lwp_ua set_lwp_ua has_lwp_ua 
 
 B<Default>: LWP::UserAgent->new();
@@ -415,7 +424,6 @@ somthing tricky, set this.
 
 B<Default>: 0.2
 B<Type>: None
-
 
 LastFM says you can only make 5 request per second aggregated over a 5 minute
 period.  This makes sure that happens.
@@ -468,7 +476,7 @@ Croaks if it is not, so you will want to wrap this in an eval.
 
 =item gettoken
 
-Grabs a new token.  Returns the url to direct users to go to.  Until the user
+Grabs a new token. Returns the url to direct users to go to.  Until the user
 goes to this url the getsession method will fail.
 
 =item has_sk($username)

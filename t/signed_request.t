@@ -14,8 +14,9 @@ my $username = $lfm->config->get_option('username');
 
 SKIP: {
 
+    skip( 'Write Test Not Enabled',3 ) if (! $ENV{WRITE_TESTING});
     if (! $lfm->session_cache->has_value($username)) {
-        skip "Skipping signed request, as no session key for $username is available";
+        skip "Skipping signed request, as no session key for $username is available",3;
     }
     my $user = $lfm->new_user(name => $username);
     ok(defined $user, "User is defined");

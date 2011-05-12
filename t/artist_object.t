@@ -147,6 +147,7 @@ while ( my ( $artist_name, $expected ) = each %expected_results ) {
 
     SKIP:
     {
+        skip( 'Write Test Not Enabled',4 ) if (! $ENV{WRITE_TESTING});
         skip( 'Not Requested', 4 ) if ( !$expected->{addtag} );
         skip( 'No session key', 4 )
             if ( !( $lfm->agent->has_sk($username) ) );

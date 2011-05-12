@@ -1,6 +1,11 @@
-#!perl
+#!perl -T
 
-use Test::More skip_all => 'Skipping test for now.';
+BEGIN {
+    unless ($ENV{AUTHOR_TESTING}) {
+        require Test::More;
+        Test::More::plan(skip_all => 'these tests are for testing by the author');
+    }
+}
 
 if (!require Test::Perl::Critic) {
     Test::More::plan(

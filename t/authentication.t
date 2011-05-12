@@ -34,6 +34,7 @@ if ($token_ref) {
         if (! is_interactive) {
             skip "Only try a real logon if run interactivly.", 4;
         }
+        skip( 'Write Test Not Enabled',4 ) if (! $ENV{WRITE_TESTING});
         note ("Please visit " . $token_ref->{url});
         note ("I will wait for you.");
 
