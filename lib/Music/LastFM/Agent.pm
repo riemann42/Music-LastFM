@@ -16,6 +16,7 @@ use Encode;
 
 use Music::LastFM::Response;
 use Music::LastFM::Method;
+use LWP;
 
 with 'Music::LastFM::Role::Logger';
 

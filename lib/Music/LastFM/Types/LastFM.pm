@@ -9,7 +9,7 @@ use MooseX::Types -declare => [
         Events      Album       Albums      Venue       Venues
         Track       Tracks      Gender      Logger      Cache
         SmArrayRef  Shout       Shouts      FullImage   Images
-        DateTime    CurrentPlay
+        DateTime    CurrentPlay UserAgent
 
         )
 ];
@@ -182,6 +182,7 @@ subtype CurrentPlay, as Dict [
 ];
 
 
+class_type UserAgent, { class => 'LWP::UserAgent' };
 
 1;
 __END__

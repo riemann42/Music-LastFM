@@ -1,8 +1,11 @@
 use strict;
 use warnings;
-use Module::Build;
 
-my $builder = Module::Build->new(
+use lib 'inc/';
+
+use Module::Build::LastFM;
+
+my $builder = Module::Build::LastFM->new(
     module_name         => 'Music::LastFM',
     license             => 'perl',
     dist_author         => 'Edward Allen <ealleniii_at_cpan_dot_org>',
@@ -27,7 +30,6 @@ my $builder = Module::Build->new(
         'MooseX::Types::Structured' => 0.23,
         'MooseX::Types::UUID' => 0.02,
         'MooseX::Types::URI' => 0.02,
-        'MooseX::Types::LWP::UserAgent' => 0.02,
         'namespace::autoclean' => 0,
         'Readonly' => 1.03,
         'Module::Load' => 0,
@@ -38,6 +40,7 @@ my $builder = Module::Build->new(
     build_requires => {
         'Test::More' => 0,
         'TAP::Harness' => 0,
+        'File::Slurp' => 0,
     },
     use_tap_harness => 1,
     create_license => 1,

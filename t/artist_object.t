@@ -1,10 +1,18 @@
 use warnings;
 use strict;
 use Carp;
-
 use English qw( -no_match_vars );
-
 use Test::More;
+use lib ('inc/');
+
+use Test::LWP::Recorder; 
+
+my $ua = Test::LWP::Recorder->new({
+    record => $ENV{LWP_RECORD},
+    cache_dir => 't/LWPCache', 
+    filter_params => [qw(api_key api_secret sk)],
+});
+
 
 my %expected_results = (
     'Sarah Slean' => {
@@ -50,8 +58,11 @@ sub check_list_value {
 }
 my $username = 'mlfm-test';
 my $lfm = Music::LastFM->new( config_filename => 'tmp/options.conf' );
-
-use Data::Dumper;
+$lfm->agent->set_lwp_ua($ua);
+$lfm->agent->lwp_ua->agent(   'Music-LastFM/' 
+                            . $Music::LastFM::VERSION
+                            . $lfm->agent->lwp_ua->_agent() );
+$lfm->no_cache();
 
 while ( my ( $artist_name, $expected ) = each %expected_results ) {
     my $artist = $lfm->new_artist( name => $artist_name );

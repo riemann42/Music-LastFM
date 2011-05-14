@@ -5,7 +5,6 @@ __PACKAGE__->provide_types_from(qw/
     MooseX::Types::UUID
     MooseX::Types::Structured
     MooseX::Types::URI
-    MooseX::Types::LWP::UserAgent
     Music::LastFM::Types::LastFM
     Music::LastFM::Types::Method
     Music::LastFM::Types::Country

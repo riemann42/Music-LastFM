@@ -323,7 +323,6 @@ This document describes Music::LastFM version 0.0.3
 
     print join("\n", @artists);
 
-
 =begin test
 
     return { 
@@ -333,32 +332,39 @@ This document describes Music::LastFM version 0.0.3
         artists => \@artists 
            };
 
+
 =end test
 
 =for test "synopsis" end
 
 =head1 DESCRIPTION
 
-Music::LastFM is an object-based module for working with the LastFM 2.0 API.  This module requires an API key from LastFM to work.
+Music::LastFM is an object-based module for working with the LastFM 2.0 API.  
+This module requires an API key from LastFM to work.
 
-Music::LastFM is a factory module for Music::LastFM::Agent, and various Music::LastFM::XXX objects.  
+The Music::LastFM module itself, is one way to implement
+L<Music::LastFM::Agent>, and various L<Music::LastFM::Object> objects.  Please
+see the documentation for each of these for a more low-level interface to
+LastFM.
 
-A new Music::LastFM object generates a Music::LastFM::Agent singleton if it does not exists already.  This singleton is used to communicate with the 
-LastFM servers, and generate a Music::LastFM::Response object.  The data in this object can be accessed via the 'data' method.  
+A new Music::LastFM object generates a Music::LastFM::Agent singleton if it 
+does not exists already.  This singleton is used to communicate with the 
+LastFM servers, and generate a Music::LastFM::Response object.  The data in 
+this object can be accessed via the 'data' method.  
 
-The Music::LastFM::Agent object does not need to be explicitly accessed, however.  Music::LastFM::XXX Objects will query LastFM automatically when
-you request data that has not been set.  For example:
-
+The Music::LastFM::Agent object does not need to be explicitly accessed, 
+however.  Music::LastFM::Object::XXX Objects will query LastFM automatically
+when you request data that has not been set.  For example:
 
     my $artist = $lfm->new_artist(name => 'Sarah Slean');
     print "$artist: ", $artist->mbid(), "\n";
-
 
 will print 
 
     Sarah Slean: CA6FB0DE-336F-4BD9-ADF1-CE8EEBAA7FE1
 
-This example demonstrates how object overloading works, and automatic data gathering.  
+This example also demonstrates how object overloading works, and automatic 
+data gathering.  
 
 =head1 METHODS
 
@@ -374,7 +380,8 @@ This example demonstrates how object overloading works, and automatic data gathe
         username => "iAmCool",
    )
 
-This creates a new Music::LastFM object.  The options provided are used to create the Music::LastFM singleton if it doesn't already exist.
+This creates a new Music::LastFM object.  The options provided are used to 
+create the Music::LastFM singleton if it doesn't already exist.
 
 The attributes can be any of the attributes listed below.
 
@@ -390,7 +397,8 @@ The API Key provided to you by LastFM.
 
 =item api_secret has_api_secret REQUIRED
 
-The API Secret provided to you by LastFM.  Used to sign requests, so keep it secret.
+The API Secret provided to you by LastFM.  Used to sign requests, so keep 
+it secret.
 
 =item username has_username REQUIRED
 
@@ -400,7 +408,10 @@ This is the username for authenticated requests.
 
 Default: A Cache::FileCache object
 
-This object is used to cache JSON responses from the LastFM Web Service. Defaults to Cache::FileCache, using the cache_time attribute to determine amount of time to cache objects.  This can be cleared with no_cache, or disabled by setting cache_time to 0.
+This object is used to cache JSON responses from the LastFM Web Service. 
+Defaults to L<Cache::FileCache>, using the cache_time attribute to determine 
+amount of time to cache objects.  This can be cleared with no_cache, or 
+disabled by setting cache_time to 0.
 
 =item cache_time has_cache_time 
 
@@ -416,7 +427,9 @@ Log file location to log requests and responses for debugging
 
 Default: Generated Automatically
 
-This is the object used for logging.  The default is a Log::Dispatch object.  If the log_filename attribute is set, items are logged to this file.  Any object with debug, info, error, and critical methods can be used here.
+This is the object used for logging.  The default is a Log::Dispatch object.  
+If the log_filename attribute is set, items are logged to this file.  Any 
+object with debug, info, error, and critical methods can be used here.
 
 =item scrobble_queue_filename has_scrobble_queue_filename 
 
@@ -428,13 +441,16 @@ A filename to store scrobbles in before submitting
 
 Default: /home/mythtv/.music-lastfm-sessions
 
-A filename to store session keys in.  Session Keys have an unlimited lifetime, so storing them is a good idea.
+A filename to store session keys in.  Session Keys have an unlimited 
+lifetime, so storing them is a good idea.
 
 =item session_cache has_session_cache 
 
 Default: Generated Automatically
 
-This is the object used to store authenticated sessions in.  Defaults to a <L:Music::LastFM::SessionCache> object, using the session_cache attribute as the file
+This is the object used to store authenticated sessions in.  Defaults to a 
+<L:Music::LastFM::SessionCache> object, using the session_cache attribute 
+as the file
 
 =item url has_url 
 
@@ -454,7 +470,14 @@ Return a shortcut to the agent singleton.
 
 =item new_artist new_album new_track new_tag new_event new_venue new_user
 
-Generate a new blank Music::LastFM::Object::Artist, Album, Track, Tag, Event, Venue or User object.
+Generate a new blank 
+L<Artist|Music::LastFM::Object::Artist>,
+L<Album|Music::LastFM::Object::Album>, 
+L<Track|Music::LastFM::Object::Track>, 
+L<Tag|Music::LastFM::Object::Tag>, 
+L<Event|Music::LastFM::Object::Event>, 
+L<Venue|Music::LastFM::Object::Venue>, 
+or L<User|Music::LastFM::Object::User> object.
 
 =back
 
@@ -582,8 +605,6 @@ If a response contains artist data, it is coerced into this.  Also, this
 object can be used to make requests back to the service.
 
 Example of using it to make requests:
-
-=for test "artist" begin
 
     my $artist = $lfm->new_artist(name => 'U2');
     if ($artist->check) {
