@@ -44,10 +44,10 @@ t/00.load.t
 t/artist_object.t
 t/authentication.t
 t/config.t
-t/pod_synopsis.t
-t/signed_request.t
+t/LWPCache/14e65db3bb039b05e7b29a51b6ab7111
 t/LWPCache/3811e94bd145805e3fa0ac851221b654
 t/LWPCache/3c433732a356db1f4471cd8fc33a452f
+t/LWPCache/55c12ed7c216d4815d977b8eef2ea3ad
 t/LWPCache/56b39cf793299373a7fe8c0ff242290a
 t/LWPCache/8294708e605b8f2ef264454951a9e040
 t/LWPCache/8a4c26e1e130f8dfb0e223101fa95931
@@ -56,6 +56,11 @@ t/LWPCache/aab1d9a2bc0d2f013ba91c4d9974a5b9
 t/LWPCache/b0479389b18b35f20a157c431939cd8e
 t/LWPCache/b6b2ed5c601920bca5780ce598278993
 t/LWPCache/c50526f641498078acacf51a2484ab57
+t/LWPCache/e1d0e6567dd03e797c9b452796094cd6
+t/LWPCache/e4c7dbdf24f8f98fb891812e42b6abcd
+t/pod_synopsis.t
+t/signed_request.t
 xt/90-perlcritic.t
 xt/97-pod.t
 xt/98-pod-coverage.t
+Makefile.PL

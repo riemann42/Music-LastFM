@@ -4,7 +4,6 @@ use Carp;
 use English qw( -no_match_vars );
 use Test::More;
 use lib ('inc/');
-
 use Test::LWP::Recorder; 
 
 my $ua = Test::LWP::Recorder->new({
@@ -12,7 +11,6 @@ my $ua = Test::LWP::Recorder->new({
     cache_dir => 't/LWPCache', 
     filter_params => [qw(api_key api_secret sk)],
 });
-
 
 my %expected_results = (
     'Sarah Slean' => {
@@ -58,6 +56,7 @@ sub check_list_value {
 }
 my $username = 'mlfm-test';
 my $lfm = Music::LastFM->new( config_filename => 'tmp/options.conf' );
+
 $lfm->agent->set_lwp_ua($ua);
 $lfm->agent->lwp_ua->agent(   'Music-LastFM/' 
                             . $Music::LastFM::VERSION
@@ -176,4 +175,5 @@ while ( my ( $artist_name, $expected ) = each %expected_results ) {
 }
 
 done_testing();
+
 

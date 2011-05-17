@@ -25,7 +25,7 @@ sub _die {
     my $self = shift;
     my ($message,$exception_object,@fields) = @_;
     if ($self->_has_logger) {
-        $self->critical($message);
+        $self->_critical($message);
     }
     if (! defined $exception_object) {
         $exception_object = 'Music::LastFM::Exception';

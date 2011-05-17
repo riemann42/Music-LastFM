@@ -1,5 +1,5 @@
 ---
-abstract: "[One line description of module's purpose here]"
+abstract: 'Moose Framework for LastFM 2.0 API'
 author:
   - 'Edward Allen <ealleniii_at_cpan_dot_org>'
 build_requires:

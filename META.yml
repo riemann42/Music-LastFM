@@ -1,8 +1,9 @@
 ---
-abstract: "[One line description of module's purpose here]"
+abstract: 'Moose Framework for LastFM 2.0 API'
 author:
   - 'Edward Allen <ealleniii_at_cpan_dot_org>'
 build_requires:
+  File::Slurp: 0
   TAP::Harness: 0
   Test::More: 0
 configure_requires:
@@ -123,7 +124,6 @@ requires:
   MooseX::Singleton: 0.26
   MooseX::Types: 0.25
   MooseX::Types::DateTimeX: 0.06
-  MooseX::Types::LWP::UserAgent: 0.02
   MooseX::Types::Locale::Country: 0.04
   MooseX::Types::Structured: 0.23
   MooseX::Types::URI: 0.02

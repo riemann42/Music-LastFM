@@ -1,10 +1,10 @@
 HTTP/1.0 200 OK
 Connection: close
-Date: Sat, 14 May 2011 04:25:49 GMT
+Date: Sat, 14 May 2011 04:15:36 GMT
 Server: Apache/1.3.39 (Unix)
 Content-Type: application/json; charset=utf-8;
 Client-Response-Num: 1
 X-Proxy-Fix-Up: headers fixed up
-X-Web-Node: www173
+X-Web-Node: www169
 
-{"error":6,"message":"The artist you supplied could not be found"}
+{"error":14,"message":"This token has not been authorized"}

@@ -92,7 +92,7 @@ sub request {
     }
     else {
         carp q{Page requested that wasn't recorded: }
-            . $request->URI->as_string;
+            . $request->uri->as_string;
         return HTTP::Response->new(HTTP_NOT_FOUND);
     }
 }

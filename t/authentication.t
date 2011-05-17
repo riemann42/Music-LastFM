@@ -2,6 +2,9 @@ use warnings; use strict; use Carp;
 use Test::More;
 use IO::Interactive qw(is_interactive);
 
+use lib ('inc/');
+use Test::LWP::Recorder; 
+
 use English qw( -no_match_vars ) ;
 
 
@@ -15,7 +18,18 @@ sub sleep_print {
     }
 }
 
+my $ua = Test::LWP::Recorder->new({
+    record => $ENV{LWP_RECORD},
+    cache_dir => 't/LWPCache', 
+    filter_params => [qw(api_key api_secret sk)],
+});
+
 my $lfm = Music::LastFM->new(config_filename => 'tmp/options.conf');
+$lfm->agent->set_lwp_ua($ua);
+$lfm->agent->lwp_ua->agent(   'Music-LastFM/' 
+                            . $Music::LastFM::VERSION
+                            . $lfm->agent->lwp_ua->_agent() );
+$lfm->no_cache();
 
 
 my $username = 'mflm-test';
