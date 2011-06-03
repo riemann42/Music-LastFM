@@ -16,7 +16,7 @@ before _process_options => sub {
         if (( ! exists $options->{reader}  ) || (! $options->{reader})) {
             $options->{reader} = $name;
         }
-        # And finally, everything, even ro, get a writer.
+        # And finally, everything, even ro, gets a writer.
         # TODO : create a writer that checks who you are, making it truly private.
         if ( ! exists $options->{writer} ) {
             my $set = (( $name =~ m{^_} ) || ($options->{is} eq 'ro')) ?  '_set_'

@@ -19,3 +19,4 @@ Makefile
 ^\.perl
 ^bin/docit\.pl$
 ^bin/mpdscrobbleold$
+^MYMETA\.json$
