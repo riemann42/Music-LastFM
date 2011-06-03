@@ -14,7 +14,8 @@ extends qw(Music::LastFM::Object);
 use namespace::autoclean;
 
 has '+name' => ( 
-    identity => 'album' 
+    identity => 'album' ,
+    traits   => [qw(LastFM)],
 );
 
 has 'artist' => ( 
@@ -23,17 +24,21 @@ has 'artist' => (
     identity => 'artist', 
     coerce => 1,
     required => 1,
+    traits   => [qw(LastFM)],
 );
 
 has '+url' => ( 
+    traits   => [qw(LastFM)],
     apimethod => 'album.getInfo'
 );
 
 has '+image' => ( 
+    traits   => [qw(LastFM)],
     apimethod => 'album.getInfo'
 );
 
 has 'mbid' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => UUID,
     coerce    => 1,
@@ -42,12 +47,14 @@ has 'mbid' => (
 );
 
 has 'streamable' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Bool, 
     apimethod => 'album.getInfo' 
 );
 
 has 'releasedate' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => DateTime,
     coerce    => 1,
@@ -55,29 +62,34 @@ has 'releasedate' => (
 );
 
 has 'wiki' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Wiki, 
     apimethod => 'album.getInfo' 
 );
 
 has 'listeners' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Int, 
     apimethod => 'album.getInfo' 
 );
 
 has 'playcount' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Int, 
     apimethod => 'album.getInfo' 
 );
 
 has 'userplaycount' => (
+    traits   => [qw(LastFM)],
     is => 'rw',
     isa => Int 
 );
 
 has 'tracks' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Tracks, 
     coerce => 1, 
@@ -85,6 +97,7 @@ has 'tracks' => (
 );
 
 has 'toptags' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Tags, 
     coerce => 1, 
@@ -92,6 +105,7 @@ has 'toptags' => (
 );
 
 has 'shouts' => (
+    traits   => [qw(LastFM)],
     is => 'ro',
     isa => Shouts,
     coerce => 1,

@@ -8,21 +8,33 @@ extends qw(Music::LastFM::Object);
 use namespace::autoclean;
 
 has 'url' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Str,
     apimethod => 'tag.getInfo'
 );
 has 'image' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Image, 
     coerce => 1,
     apimethod => 'tag.getInfo'
 );
-has 'reach'      => ( is => 'rw', isa => Int );
-has 'taggings'   => ( is => 'rw', isa => Int );
-has 'count'      => ( is => 'rw', isa => Int );
-has 'streamable' => ( is => 'rw', isa => Bool );
-has 'wiki'       => ( is => 'rw', isa => Wiki );
+has 'reach'      => ( 
+    traits   => [qw(LastFM)],
+is => 'rw', isa => Int );
+has 'taggings'   => ( 
+    traits   => [qw(LastFM)],
+is => 'rw', isa => Int );
+has 'count'      => ( 
+    traits   => [qw(LastFM)],
+is => 'rw', isa => Int );
+has 'streamable' => (
+    traits   => [qw(LastFM)],
+is => 'rw', isa => Bool );
+has 'wiki'       => ( 
+    traits   => [qw(LastFM)],
+is => 'rw', isa => Wiki );
 
 __PACKAGE__->meta->make_immutable;
 1;

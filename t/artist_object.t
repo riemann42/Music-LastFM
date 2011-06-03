@@ -50,9 +50,13 @@ sub check_list_value {
     ok( ref $artist->$method eq 'ARRAY',
         qq{artist $method returns an array ref}
     );
-    ok( $artist->$method->[0]->isa($valuetype),
-        qq{artist $method returns an array of tags}
-    );
+    SKIP:
+    {
+        skip("Arrayref has 0 lines", 1) if  (! @{$artist->$method});
+        ok( $artist->$method->[0]->isa($valuetype),
+            qq{artist $method returns an array of tags}
+        );
+    }
 }
 my $username = 'mlfm-test';
 my $lfm = Music::LastFM->new( config_filename => 'tmp/options.conf' );

@@ -15,9 +15,12 @@ use Music::LastFM::Types qw(
 
 extends qw(Music::LastFM::Object);
 
-has '+name' => ( identity => 'track' );
+has '+name' => (
+    traits   => [qw(LastFM)],
+identity => 'track' );
 
 has 'artist' => (
+    traits   => [qw(LastFM)],
     is       => 'rw',
     isa      => Artist,
     identity => 'artist',
@@ -25,8 +28,12 @@ has 'artist' => (
     required => 1,
 );
 
-has '+url'   => ( apimethod => 'track.getInfo' );
-has '+image' => ( apimethod => 'track.getInfo' );
+has '+url'   => ( 
+    traits   => [qw(LastFM)],
+apimethod => 'track.getInfo' );
+has '+image' => ( 
+    traits   => [qw(LastFM)],
+apimethod => 'track.getInfo' );
 
 has 'last_played' => (
     is     => 'rw',
@@ -35,47 +42,49 @@ has 'last_played' => (
 );
 
 has 'id' => (
-    is     => 'rw',
-    isa    => Str,
-);
-
-has 'id' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Int,
     apimethod => 'track.getInfo',
 );
 
 has 'mbid' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => UUID,
     apimethod => 'track.getInfo',
 );
 
 has 'duration' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Int,
     apimethod => 'track.getInfo',
 );
 
 has 'listeners' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Int,
     apimethod => 'track.getInfo',
 );
 
 has 'playcount' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Int,
     apimethod => 'track.getInfo',
 );
 
 has 'album' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Album,
     apimethod => 'track.getInfo',
 );
 
 has 'tags' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Tags,
     coerce    => 1,
@@ -83,6 +92,7 @@ has 'tags' => (
 );
 
 has 'toptags' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Tags,
     coerce    => 1,
@@ -90,6 +100,7 @@ has 'toptags' => (
 );
 
 has 'topfans' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Users,
     coerce    => 1,
@@ -97,12 +108,14 @@ has 'topfans' => (
 );
 
 has 'wiki' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Wiki,
     apimethod => 'track.getInfo',
 );
 
 has 'similar' => (
+    traits   => [qw(LastFM)],
     is        => 'rw',
     isa       => Tracks,
     apimethod => 'track.getSimilar',

@@ -1,4 +1,4 @@
-package Music::LastFM::Meta::LastFM::Role::Attribute;
+package Music::LastFM::Meta::Attribute::Trait::API;
 use Moose::Role;
 use Music::LastFM::Types qw(Method);
 use MooseX::Types::Moose qw(Str Bool);
@@ -31,12 +31,16 @@ before _process_options => sub {
     my $options = shift;
 
     if ( $options->{apimethod} ) {
-#        $options->{default} =
-#            sub { my $self = shift; return $self->_api_builder($name) };
-#        $options->{lazy}   = 1;
-        $options->{reader} = '_raw_' . $name;
+        $options->{default} =
+            sub { my $self = shift; 
+                  return $self->_api_builder($name) };
+        $options->{lazy}   = 1;
     }
 };
+
+package Moose::Meta::Attribute::Custom::Trait::LastFM;
+sub register_implementation {'Music::LastFM::Meta::Attribute::Trait::API'}
+
 
 
 1;

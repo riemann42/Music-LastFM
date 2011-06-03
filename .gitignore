@@ -17,3 +17,4 @@ Debian_CPANTS.txt*
 lib.old
 tmp
 MYMETA.yml
+t/LWPCache/

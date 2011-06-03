@@ -177,8 +177,10 @@ with 'Music::LastFM::Role::Logger';
         my $data = shift;
         my $meta = $object->meta;
         for my $attr ( $meta->get_all_attributes ) {
-            my $m = $attr->has_api ? $attr->api : $attr->name;
-            if ( $data->{$m} ) { $attr->set_value( $object, $data->{$m} ); }
+            if ($attr->does('LastFM')) {
+                my $m = $attr->has_api ? $attr->api : $attr->name;
+                if ( $data->{$m} ) { $attr->set_value( $object, $data->{$m} ); }
+            }
         }
         return $object;
     }

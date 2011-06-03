@@ -8,16 +8,19 @@ extends qw(Music::LastFM::Object);
 use namespace::autoclean;
 
 has '+name' => (
+    traits   => [qw(LastFM)],
     identity => 'id',
     api => 'id',
 );
 
 has 'url' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Str,
 #    apimethod => 'artist.getInfo'
 );
 has 'image' => ( 
+    traits   => [qw(LastFM)],
     is => 'rw', 
     isa => Image, 
     coerce => 1,

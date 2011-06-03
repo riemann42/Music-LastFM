@@ -6,8 +6,8 @@ use version; our $VERSION = qv('0.0.3');
 
 use Moose;
 use Music::LastFM::Types qw(
-    Image   ArtistStats Wiki    Artists 
-    Tags    Users       UUID    Str 
+    Image   ArtistStats Wiki    Artists
+    Tags    Users       UUID    Str
     Bool    Int         Shouts  Events
     Images
 );
@@ -15,44 +15,60 @@ use Music::LastFM::Types qw(
 extends qw(Music::LastFM::Object);
 use namespace::autoclean;
 
-has '+name'  => ( identity  => 'artist'         );
-has '+url'   => ( apimethod => 'artist.getInfo' );
-has '+image' => ( apimethod => 'artist.getInfo' );
+has '+name' => (
+    traits   => [qw(LastFM)],
+    identity => 'artist'
+);
+has '+url' => (
+    traits    => [qw(LastFM)],
+    apimethod => 'artist.getInfo'
+);
+has '+image' => (
+    traits    => [qw(LastFM)],
+    apimethod => 'artist.getInfo'
+);
 
 has 'mbid' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => UUID,
     coerce    => 1,
     identity  => 'mbid',
-    apimethod => 'artist.getInfo'
+    apimethod => 'artist.getInfo',
 );
 has 'streamable' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Bool,
-    apimethod => 'artist.getInfo'
+    apimethod => 'artist.getInfo',
 );
 has 'user_playcount' => (
-    is  => 'ro',
-    isa => Int,
-    api => 'playcount'
+    traits => [qw(LastFM)],
+    is     => 'ro',
+    isa    => Int,
+    api    => 'playcount',
 );
 has 'stats' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => ArtistStats,
-    apimethod => 'artist.getInfo'
+    apimethod => 'artist.getInfo',
 );
 has 'bio' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Wiki,
-    apimethod => 'artist.getInfo'
+    apimethod => 'artist.getInfo',
 );
 has 'similar' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Artists,
     coerce    => 1,
-    apimethod => 'artist.getInfo'
+    apimethod => 'artist.getInfo',
 );
 has 'similar_extended' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Artists,
     coerce    => 1,
@@ -60,37 +76,43 @@ has 'similar_extended' => (
     api       => 'similarartists',
 );
 has 'toptags' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Tags,
     coerce    => 1,
     apimethod => 'artist.getTopTags',
-    api       => 'toptags'
+    api       => 'toptags',
 );
 has 'topfans' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Users,
     coerce    => 1,
-    apimethod => 'artist.getTopFans'
+    apimethod => 'artist.getTopFans',
 );
 has 'albums' => (
+    traits    => [qw(LastFM)],
     is        => 'ro',
     isa       => Users,
     coerce    => 1,
     apimethod => 'artist.getTopAlbums',
-    api       => 'topalbums'
+    api       => 'topalbums',
 );
 has 'shouts' => (
-    is => 'ro',
-    isa => Shouts,
-    coerce => 1,
-    apimethod => 'artist.getShouts'
+    traits    => [qw(LastFM)],
+    is        => 'ro',
+    isa       => Shouts,
+    coerce    => 1,
+    apimethod => 'artist.getShouts',
 );
 has 'events' => (
-    is       => 'ro',
-    isa      => Events,
-    coerce => 1,
-    apimethod => 'artist.getEvents'
+    traits    => [qw(LastFM)],
+    is        => 'ro',
+    isa       => Events,
+    coerce    => 1,
+    apimethod => 'artist.getEvents',
 );
+
 #has 'past_events' => (
 #    is       => 'ro',
 #    isa      => Events,  # TODO : Fix coercion
@@ -98,19 +120,20 @@ has 'events' => (
 #    apimethod => 'artist.getPastEvents'
 #);
 has 'images' => (
-    is       => 'ro',
-    isa      => Images,
-    coerce => 1,
-    apimethod => 'artist.getImages'
+    traits    => [qw(LastFM)],
+    is        => 'ro',
+    isa       => Images,
+    coerce    => 1,
+    apimethod => 'artist.getImages',
 );
 
-
 sub user_tags {
-    shift->_api_query( method => 'artist.getTags',
-                       response_type => Tags,
-                       @_);
-};
-
+    shift->_api_query(
+        method        => 'artist.getTags',
+        response_type => Tags,
+        @_
+    );
+}
 
 sub playcount {
     my $self = shift;
@@ -129,10 +152,10 @@ augment check => sub {
     return $self->playcount();
 };
 
-sub add_tags    { shift->_add_tags(   method => 'artist.addTags',   @_ ); }
-sub share       { shift->_share(      method => 'artist.share',     @_ ); }
-sub remove_tag  { shift->_remove_tag( method => 'artist.removeTag', @_ ); }
-sub shout       { shift->_shout(      method => 'artist.shout',     @_) }
+sub add_tags { shift->_add_tags( method => 'artist.addTags', @_ ); }
+sub share { shift->_share( method => 'artist.share', @_ ); }
+sub remove_tag { shift->_remove_tag( method => 'artist.removeTag', @_ ); }
+sub shout { shift->_shout( method => 'artist.shout', @_ ) }
 
 __PACKAGE__->meta->make_immutable;
 1;

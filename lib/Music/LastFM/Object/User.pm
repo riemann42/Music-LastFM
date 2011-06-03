@@ -15,63 +15,75 @@ use namespace::autoclean;
 
 
 has '+name' => ( 
+    traits   => [qw(LastFM)],
     identity  => 'user' 
 );
 has 'url' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Str,
     apimethod => 'user.getInfo'
 );
 has 'image' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Image,
     coerce    => 1,
     apimethod => 'user.getInfo'
 );
 has 'realname' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Str,
     apimethod => 'user.getInfo',
 );
 
 has 'id' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Int,
     apimethod => 'user.getInfo',
 );
 has 'age' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Int,
     apimethod => 'user.getInfo',
 );
 has 'subscriber' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Bool,
     apimethod => 'user.getInfo',
 );
 has 'playcount' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Int,
     apimethod => 'user.getInfo',
 );
 has 'gender' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Gender,
     coerce    => 1,
     apimethod => 'user.getInfo',
 );
 has 'playlists' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Int,
     apimethod => 'user.getInfo',
 );
 has 'country' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => Country,
     coerce    => 1,
     apimethod => 'user.getInfo',
 );
 has 'registered' => (
+    traits   => [qw(LastFM)],
     is        => 'ro',
     isa       => DateTime,
     coerce    => 1,

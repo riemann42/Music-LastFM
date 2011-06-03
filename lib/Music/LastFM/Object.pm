@@ -8,13 +8,15 @@ use English qw( -no_match_vars );
 
 use Moose::Util::TypeConstraints;
 use Music::LastFM::Types qw(Image HashRef SmArrayRef Str Int Method Bool Event);
-use Music::LastFM::Meta::LastFM;
+use Music::LastFM::Meta::EasyAcc;
+use Music::LastFM::Meta::Attribute::Trait::API;
 use MooseX::Params::Validate;
 
 has 'name' => (
     is       => 'rw',
     isa      => Str,
-    required => 1
+    required => 1,
+    traits   => [qw(LastFM)],
 );
 
 with 'Music::LastFM::Role::Overload';
@@ -30,18 +32,21 @@ has 'agent' => (
 has 'url' => (
     is  => 'rw',
     isa => Str,
+    traits   => [qw(LastFM)],
 );
 
 has 'image' => (
     is     => 'rw',
     isa    => Image,
     coerce => 1,
+    traits   => [qw(LastFM)],
 );
 
 has 'attr' => (
     is     => 'ro',
     isa    => HashRef,
     api    => '@attr',
+    traits   => [qw(LastFM)],
 );
 
 sub check {
@@ -90,7 +95,7 @@ sub _find_identity {
     my $self     = shift;
     my %identity = ();
     foreach my $attr ( $self->meta->get_all_attributes ) {
-        if ( ( $attr->has_value($self) ) && ( $attr->has_identity ) ) {
+        if ( ($attr->does('LastFM')) &&  ( $attr->has_value($self) ) && ( $attr->has_identity ) ) {
             my $val = $attr->get_value($self);
             if ( ( ref $val ) && ( $val->can('name') ) ) {
                 $val = $val->name;
